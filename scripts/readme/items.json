@@ -1,0 +1,33 @@
+{
+  "groups": [
+    {
+      "id": "see",
+      "label": "sees",
+      "note": "pixels in",
+      "tools": ["screenshot", "record", "cursor_position"]
+    },
+    {
+      "id": "act",
+      "label": "acts",
+      "note": "events out",
+      "tools": [
+        "left_click",
+        "double_click",
+        "triple_click",
+        "right_click",
+        "middle_click",
+        "mouse_move",
+        "left_click_drag",
+        "type",
+        "key",
+        "scroll"
+      ]
+    },
+    {
+      "id": "pace",
+      "label": "waits",
+      "note": "lets the screen settle",
+      "tools": ["wait"]
+    }
+  ]
+}

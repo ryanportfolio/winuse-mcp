@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 470" width="380" height="470" role="img" aria-label="The same point in two coordinate spaces. A 1920 by 1080 screen is captured as a 1372 by 772 screenshot, scaled by 0.715. Claude clicks at 686, 443 in that screenshot and the server fires the click at 960, 620 on the real screen.">
+<style>
+.frame{fill:none;stroke:#d1d9e0;stroke-width:1.25}
+.g{stroke:#ccd4dd;stroke-width:1}
+.beam{fill:none;stroke:#d1d9e0;stroke-width:1.1;stroke-dasharray:3 4;opacity:.9}
+.trav{fill:#bc4c00}
+.ax{stroke:#bc4c00;stroke-width:1.4}
+.dot{fill:#bc4c00}
+.ttl{font:600 13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#1f2328}
+.sub{font:400 11px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#59636e}
+.cap{font:600 12px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#1f2328}
+.num,.dim{font:400 11px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#59636e}
+.coord{font:600 12px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#bc4c00}
+.ring{fill:none;stroke:#bc4c00;stroke-width:1.6;opacity:0}
+.t1,.t2{opacity:0}
+.t1{animation:t1 6s linear infinite}
+.t2{animation:t2 6s linear infinite}
+.ring{animation:ring 6s linear infinite}
+@keyframes t1{0%,5%{opacity:0}6%,33%{opacity:1}35%,100%{opacity:0}}
+@keyframes t2{0%,49%{opacity:0}50%,77%{opacity:1}79%,100%{opacity:0}}
+@keyframes ring{0%,77%{opacity:0;r:6}80%{opacity:.9;r:7}92%,100%{opacity:0;r:19}}
+@media (prefers-reduced-motion:reduce){
+ *{animation:none!important}
+ .trav,.ring{opacity:0}
+}</style>
+
+<g class="lab">
+<text class="ttl" x="40" y="26">native screen</text>
+<text class="sub" x="40" y="42">what Windows draws</text>
+<text class="ttl" x="40" y="310.8">model screen</text>
+<text class="sub" x="40" y="326.8">what Claude is sent</text>
+</g>
+
+<g class="gridline"><line class="g" x1="65" y1="52" x2="65" y2="220.8"/>
+<line class="g" x1="90" y1="52" x2="90" y2="220.8"/>
+<line class="g" x1="115" y1="52" x2="115" y2="220.8"/>
+<line class="g" x1="140" y1="52" x2="140" y2="220.8"/>
+<line class="g" x1="165" y1="52" x2="165" y2="220.8"/>
+<line class="g" x1="190" y1="52" x2="190" y2="220.8"/>
+<line class="g" x1="215" y1="52" x2="215" y2="220.8"/>
+<line class="g" x1="240" y1="52" x2="240" y2="220.8"/>
+<line class="g" x1="265" y1="52" x2="265" y2="220.8"/>
+<line class="g" x1="290" y1="52" x2="290" y2="220.8"/>
+<line class="g" x1="315" y1="52" x2="315" y2="220.8"/>
+<line class="g" x1="40" y1="77" x2="340" y2="77"/>
+<line class="g" x1="40" y1="102" x2="340" y2="102"/>
+<line class="g" x1="40" y1="127" x2="340" y2="127"/>
+<line class="g" x1="40" y1="152" x2="340" y2="152"/>
+<line class="g" x1="40" y1="177" x2="340" y2="177"/>
+<line class="g" x1="40" y1="202" x2="340" y2="202"/></g>
+<g class="gridline"><line class="g" x1="65" y1="336.8" x2="65" y2="457.4"/>
+<line class="g" x1="90" y1="336.8" x2="90" y2="457.4"/>
+<line class="g" x1="115" y1="336.8" x2="115" y2="457.4"/>
+<line class="g" x1="140" y1="336.8" x2="140" y2="457.4"/>
+<line class="g" x1="165" y1="336.8" x2="165" y2="457.4"/>
+<line class="g" x1="190" y1="336.8" x2="190" y2="457.4"/>
+<line class="g" x1="215" y1="336.8" x2="215" y2="457.4"/>
+<line class="g" x1="240" y1="336.8" x2="240" y2="457.4"/>
+<line class="g" x1="40" y1="361.8" x2="254.4" y2="361.8"/>
+<line class="g" x1="40" y1="386.8" x2="254.4" y2="386.8"/>
+<line class="g" x1="40" y1="411.8" x2="254.4" y2="411.8"/>
+<line class="g" x1="40" y1="436.8" x2="254.4" y2="436.8"/></g>
+
+<rect class="frame" x="40" y="52" width="300" height="168.8"/>
+<rect class="frame" x="40" y="336.8" width="214.4" height="120.6"/>
+
+<text class="dim" x="40" y="236.8">1920 x 1080</text>
+<text class="dim" x="40" y="473.4">1372 x 772</text>
+
+<path class="beam" d="M 190 220.8 C 190 266.8, 147.2 276.8, 147.2 336.8"/>
+<path class="beam" d="M 54 457.4 C 54 497.4, 54 294.8, 54 250.8"/>
+<circle class="trav t1" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.06;0.34;1" calcMode="linear" path="M 190 220.8 C 190 266.8, 147.2 276.8, 147.2 336.8"/></circle>
+<circle class="trav t2" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.5;0.78;1" calcMode="linear" path="M 54 457.4 C 54 497.4, 54 294.8, 54 250.8"/></circle>
+
+<g class="lab">
+<text class="cap" x="190" y="260.8">screenshot</text>
+<text class="num" x="190" y="275.8">x 0.715</text>
+<text class="cap" x="190" y="294.8">click</text>
+<text class="num" x="190" y="309.8">x 1.399</text>
+</g>
+
+<g class="hit h1">
+<line class="ax" x1="134.2" y1="406" x2="160.2" y2="406"/>
+<line class="ax" x1="147.2" y1="393" x2="147.2" y2="419"/>
+<circle class="dot" cx="147.2" cy="406" r="3.2"/>
+</g>
+<g class="hit h2">
+<line class="ax" x1="175" y1="148.9" x2="205" y2="148.9"/>
+<line class="ax" x1="190" y1="133.9" x2="190" y2="163.9"/>
+<circle class="dot" cx="190" cy="148.9" r="3.2"/>
+</g>
+<circle class="ring" cx="190" cy="148.9" r="6"/>
+
+<text class="coord" x="165.2" y="398">686, 443</text>
+<text class="coord" x="210" y="138.9">960, 620</text>
+
+</svg>

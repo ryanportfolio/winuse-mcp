@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  readme:
+    # README.md is a build artifact. This fails if a committed page has drifted
+    # from what the sources now produce, or if an asset it points at is gone.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/readme/build.mjs
+      - name: README matches its sources
+        run: git diff --exit-code -- README.md assets/
+
+  tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync
+      - name: Failsafe cleanup paths
+        run: uv run python scripts/failsafe_test.py

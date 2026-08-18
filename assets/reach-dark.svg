@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 258" width="880" height="258" role="img" aria-label="The 14 tools this server exposes, grouped by what they do: 3 that sees (screenshot, record, cursor_position); 10 that acts (left_click, double_click, triple_click, right_click, middle_click, mouse_move, left_click_drag, type, key, scroll); 1 that waits (wait).">
+<style>
+.gl{font:600 13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#f0f6fc}
+.gn{font:400 12px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#9198a1}
+.gc{font:600 12px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#9198a1}
+.rule{stroke:#3d444d;stroke-width:1}
+.chip{fill:none;stroke:#3d444d;stroke-width:1}
+.cn{font:400 12.5px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#f0f6fc}
+@media (prefers-reduced-motion:reduce){
+ *{animation:none!important}
+ .trav,.ring{opacity:0}
+}</style>
+<text class="gl" x="18" y="24">sees</text>
+<text class="gn" x="70" y="24">pixels in</text>
+<text class="gc" x="862" y="24" text-anchor="end">3</text>
+<line class="rule" x1="18" y1="32" x2="862" y2="32"/>
+<rect class="chip" x="18" y="48" width="100" height="22" rx="3"/>
+<text class="cn" x="68" y="63.4" text-anchor="middle">screenshot</text>
+<rect class="chip" x="126" y="48" width="69" height="22" rx="3"/>
+<text class="cn" x="160.5" y="63.4" text-anchor="middle">record</text>
+<rect class="chip" x="203" y="48" width="139" height="22" rx="3"/>
+<text class="cn" x="272.5" y="63.4" text-anchor="middle">cursor_position</text>
+<text class="gl" x="18" y="94">acts</text>
+<text class="gn" x="70" y="94">events out</text>
+<text class="gc" x="862" y="94" text-anchor="end">10</text>
+<line class="rule" x1="18" y1="102" x2="862" y2="102"/>
+<rect class="chip" x="18" y="118" width="100" height="22" rx="3"/>
+<text class="cn" x="68" y="133.4" text-anchor="middle">left_click</text>
+<rect class="chip" x="126" y="118" width="116" height="22" rx="3"/>
+<text class="cn" x="184" y="133.4" text-anchor="middle">double_click</text>
+<rect class="chip" x="250" y="118" width="116" height="22" rx="3"/>
+<text class="cn" x="308" y="133.4" text-anchor="middle">triple_click</text>
+<rect class="chip" x="374" y="118" width="108" height="22" rx="3"/>
+<text class="cn" x="428" y="133.4" text-anchor="middle">right_click</text>
+<rect class="chip" x="490" y="118" width="116" height="22" rx="3"/>
+<text class="cn" x="548" y="133.4" text-anchor="middle">middle_click</text>
+<rect class="chip" x="614" y="118" width="100" height="22" rx="3"/>
+<text class="cn" x="664" y="133.4" text-anchor="middle">mouse_move</text>
+<rect class="chip" x="722" y="118" width="139" height="22" rx="3"/>
+<text class="cn" x="791.5" y="133.4" text-anchor="middle">left_click_drag</text>
+<rect class="chip" x="18" y="146" width="53" height="22" rx="3"/>
+<text class="cn" x="44.5" y="161.4" text-anchor="middle">type</text>
+<rect class="chip" x="79" y="146" width="45" height="22" rx="3"/>
+<text class="cn" x="101.5" y="161.4" text-anchor="middle">key</text>
+<rect class="chip" x="132" y="146" width="69" height="22" rx="3"/>
+<text class="cn" x="166.5" y="161.4" text-anchor="middle">scroll</text>
+<text class="gl" x="18" y="192">waits</text>
+<text class="gn" x="70" y="192">lets the screen settle</text>
+<text class="gc" x="862" y="192" text-anchor="end">1</text>
+<line class="rule" x1="18" y1="200" x2="862" y2="200"/>
+<rect class="chip" x="18" y="216" width="53" height="22" rx="3"/>
+<text class="cn" x="44.5" y="231.4" text-anchor="middle">wait</text>
+</svg>
