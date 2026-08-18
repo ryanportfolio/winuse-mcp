@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          # The build checks that the tag the install line pins actually
+          # exists, which a tagless shallow checkout cannot see.
+          fetch-tags: true
+          fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
           node-version: '24'

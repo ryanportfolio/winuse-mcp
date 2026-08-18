@@ -34,6 +34,10 @@ from PIL import Image as PILImage
 pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 0.05
 FAILSAFE_POINT = (0, 0)
+# Pin the watched point rather than inheriting whatever this pyautogui version
+# defaults to: older versions watch all four corners, and _to_native's clamp is
+# written against exactly one.
+pyautogui.FAILSAFE_POINTS = [FAILSAFE_POINT]
 
 MAX_LONG_EDGE = 1372
 MAX_RECORD_SECONDS = 15.0

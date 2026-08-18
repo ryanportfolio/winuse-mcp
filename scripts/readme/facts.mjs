@@ -24,10 +24,33 @@ function readTools(src) {
   return out;
 }
 
+// Defaults live in the signature, not in a module constant, so they are read
+// from there rather than restated on the page.
+function readDefault(src, fn, param) {
+  const sig = src.match(new RegExp(`def ${fn}\\(([^)]*)\\)`));
+  if (!sig) throw new Error(`no signature for ${fn}`);
+  const m = sig[1].match(new RegExp(`${param}\\s*:[^=]*=\\s*([\\d.]+)`));
+  if (!m) throw new Error(`no default for ${fn}(${param})`);
+  return Number(m[1]);
+}
+
 function readConst(src, name) {
   const m = src.match(new RegExp(`^${name}\\s*=\\s*([\\d.]+)`, 'm'));
   if (!m) throw new Error(`constant ${name} not found in server.py`);
   return Number(m[1]);
+}
+
+// Read the [project] dependencies array specifically. A line-shape regex over
+// the whole file would also count a dev group, and would miscount the moment a
+// trailing comma moved.
+function readDeps(toml) {
+  // Close on a bracket at the start of a line: a dependency can carry its own
+  // brackets, as "mcp[cli]" does, and the first "]" in the file is inside one.
+  const m = toml.match(/^dependencies\s*=\s*\[([\s\S]*?)^\]/m);
+  if (!m) throw new Error('no dependencies array in pyproject.toml');
+  const names = [...m[1].matchAll(/"([^"]+)"/g)].map(x => x[1]);
+  if (!names.length) throw new Error('dependencies array parsed as empty');
+  return names.length;
 }
 
 export const TOOLS = readTools(server);
@@ -56,8 +79,10 @@ export const FACTS = {
   longEdge: LONG_EDGE,
   recordFrames: readConst(server, 'MAX_RECORD_FRAMES'),
   recordSeconds: readConst(server, 'MAX_RECORD_SECONDS'),
+  recordDefaultFrames: readDefault(server, 'record', 'max_frames'),
+  recordDefaultSeconds: readDefault(server, 'record', 'duration_seconds'),
   waitSeconds: readConst(server, 'MAX_WAIT_SECONDS'),
-  deps: (pyproject.match(/^\s*"[^"]+",$/gm) || []).length,
+  deps: readDeps(pyproject),
   python: fs.readFileSync(path.join(ROOT, '.python-version'), 'utf8').trim(),
   exW: EX_W,
   exH: EX_H,

@@ -1,18 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 262" width="380" height="262" role="img" aria-label="The 14 tools this server exposes, grouped by what they do: 3 that sees (screenshot, record, cursor_position); 10 that acts (left_click, double_click, triple_click, right_click, middle_click, mouse_move, left_click_drag, type, key, scroll); 1 that waits (wait).">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 290" width="380" height="290" role="img" aria-label="The 14 tools this server exposes, grouped by what they do. 3 read: screenshot, record, cursor_position. 10 act: left_click, double_click, triple_click, right_click, middle_click, mouse_move, left_click_drag, type, key, scroll. 1 wait: wait.">
 <style>
-.gl{font:600 12px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#f0f6fc}
-.gn{font:400 11px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#9198a1}
-.gc{font:600 11px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#9198a1}
+.gl{font:600 12.5px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#f0f6fc}
+.gn{font:400 11.5px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#9198a1}
+.gc{font:400 11.5px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#9198a1}
+.tot{font:600 12px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#f0f6fc}
 .rule{stroke:#3d444d;stroke-width:1}
-.chip{fill:none;stroke:#3d444d;stroke-width:1}
+.chip{fill:none;stroke:#4a525c;stroke-width:1}
 .cn{font:400 11.5px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#f0f6fc}
 @media (prefers-reduced-motion:reduce){
  *{animation:none!important}
  .trav,.ring{opacity:0}
 }</style>
-<text class="gl" x="12" y="20">sees</text>
-<text class="gn" x="58" y="20">pixels in</text>
-<text class="gc" x="368" y="20" text-anchor="end">3</text>
+<text class="gl" x="12" y="20">reads</text>
+<text class="gn" x="58" y="20">what comes back</text>
+<text class="gc" x="202" y="20">3 tools</text>
 <line class="rule" x1="12" y1="28" x2="368" y2="28"/>
 <rect class="chip" x="12" y="42" width="91" height="20" rx="3"/>
 <text class="cn" x="57.5" y="56" text-anchor="middle">screenshot</text>
@@ -21,8 +22,8 @@
 <rect class="chip" x="177" y="42" width="128" height="20" rx="3"/>
 <text class="cn" x="241" y="56" text-anchor="middle">cursor_position</text>
 <text class="gl" x="12" y="86">acts</text>
-<text class="gn" x="58" y="86">events out</text>
-<text class="gc" x="368" y="86" text-anchor="end">10</text>
+<text class="gn" x="58" y="86">what gets sent</text>
+<text class="gc" x="202" y="86">10 tools</text>
 <line class="rule" x1="12" y1="94" x2="368" y2="94"/>
 <rect class="chip" x="12" y="108" width="91" height="20" rx="3"/>
 <text class="cn" x="57.5" y="122" text-anchor="middle">left_click</text>
@@ -45,9 +46,11 @@
 <rect class="chip" x="245" y="158" width="62" height="20" rx="3"/>
 <text class="cn" x="276" y="172" text-anchor="middle">scroll</text>
 <text class="gl" x="12" y="202">waits</text>
-<text class="gn" x="58" y="202">lets the screen settle</text>
-<text class="gc" x="368" y="202" text-anchor="end">1</text>
+<text class="gn" x="58" y="202">pauses between actions</text>
+<text class="gc" x="202" y="202">1 tool</text>
 <line class="rule" x1="12" y1="210" x2="368" y2="210"/>
 <rect class="chip" x="12" y="224" width="47" height="20" rx="3"/>
 <text class="cn" x="35.5" y="238" text-anchor="middle">wait</text>
+<line class="rule" x1="12" y1="262" x2="368" y2="262"/>
+<text class="tot" x="12" y="280">3 + 10 + 1 = 14 tools</text>
 </svg>

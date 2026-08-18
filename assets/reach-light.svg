@@ -1,18 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 258" width="880" height="258" role="img" aria-label="The 14 tools this server exposes, grouped by what they do: 3 that sees (screenshot, record, cursor_position); 10 that acts (left_click, double_click, triple_click, right_click, middle_click, mouse_move, left_click_drag, type, key, scroll); 1 that waits (wait).">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 286" width="880" height="286" role="img" aria-label="The 14 tools this server exposes, grouped by what they do. 3 read: screenshot, record, cursor_position. 10 act: left_click, double_click, triple_click, right_click, middle_click, mouse_move, left_click_drag, type, key, scroll. 1 wait: wait.">
 <style>
 .gl{font:600 13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#1f2328}
 .gn{font:400 12px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#59636e}
-.gc{font:600 12px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#59636e}
+.gc{font:400 12px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#59636e}
+.tot{font:600 12.5px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#1f2328}
 .rule{stroke:#d1d9e0;stroke-width:1}
-.chip{fill:none;stroke:#d1d9e0;stroke-width:1}
+.chip{fill:none;stroke:#aeb8c2;stroke-width:1}
 .cn{font:400 12.5px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#1f2328}
 @media (prefers-reduced-motion:reduce){
  *{animation:none!important}
  .trav,.ring{opacity:0}
 }</style>
-<text class="gl" x="18" y="24">sees</text>
-<text class="gn" x="70" y="24">pixels in</text>
-<text class="gc" x="862" y="24" text-anchor="end">3</text>
+<text class="gl" x="18" y="24">reads</text>
+<text class="gn" x="70" y="24">what comes back</text>
+<text class="gc" x="219" y="24">3 tools</text>
 <line class="rule" x1="18" y1="32" x2="862" y2="32"/>
 <rect class="chip" x="18" y="48" width="100" height="22" rx="3"/>
 <text class="cn" x="68" y="63.4" text-anchor="middle">screenshot</text>
@@ -21,8 +22,8 @@
 <rect class="chip" x="203" y="48" width="139" height="22" rx="3"/>
 <text class="cn" x="272.5" y="63.4" text-anchor="middle">cursor_position</text>
 <text class="gl" x="18" y="94">acts</text>
-<text class="gn" x="70" y="94">events out</text>
-<text class="gc" x="862" y="94" text-anchor="end">10</text>
+<text class="gn" x="70" y="94">what gets sent</text>
+<text class="gc" x="219" y="94">10 tools</text>
 <line class="rule" x1="18" y1="102" x2="862" y2="102"/>
 <rect class="chip" x="18" y="118" width="100" height="22" rx="3"/>
 <text class="cn" x="68" y="133.4" text-anchor="middle">left_click</text>
@@ -45,9 +46,11 @@
 <rect class="chip" x="132" y="146" width="69" height="22" rx="3"/>
 <text class="cn" x="166.5" y="161.4" text-anchor="middle">scroll</text>
 <text class="gl" x="18" y="192">waits</text>
-<text class="gn" x="70" y="192">lets the screen settle</text>
-<text class="gc" x="862" y="192" text-anchor="end">1</text>
+<text class="gn" x="70" y="192">pauses between actions</text>
+<text class="gc" x="219" y="192">1 tool</text>
 <line class="rule" x1="18" y1="200" x2="862" y2="200"/>
 <rect class="chip" x="18" y="216" width="53" height="22" rx="3"/>
 <text class="cn" x="44.5" y="231.4" text-anchor="middle">wait</text>
+<line class="rule" x1="18" y1="258" x2="862" y2="258"/>
+<text class="tot" x="18" y="276">3 + 10 + 1 = 14 tools</text>
 </svg>

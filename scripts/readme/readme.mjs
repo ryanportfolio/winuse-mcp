@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { FACTS, TOOLS, REPO, ROOT } from './facts.mjs';
@@ -14,21 +15,20 @@ function pic(base, alt, width = true) {
 </picture>`;
 }
 
-const down = (FACTS.shotW / FACTS.exW).toFixed(3);
-const heroExists = fs.existsSync(path.join(ROOT, 'assets/img/loop.png'));
+// The install line pins a tag rather than tracking a branch, so a push cannot
+// change what drives a reader's desktop.
+const PIN = 'v0.1.0';
+const heroPath = path.join(ROOT, 'assets/img/loop.png');
+const heroExists = fs.existsSync(heroPath);
 
-// Sized to 76%, not full width: at full width the art pushes the install
-// snippet under the fold on a laptop, and an install command below the fold is
-// the one failure this page is not allowed to have.
-const hero = heroExists
-  ? `<p align="center">
-<img alt="An isometric diagram of the loop: a desktop window is captured, downscaled for the model, and a click returns to a marked point on the original window." src="assets/img/loop.png" width="76%">
-</p>
-
-`
-  : '';
-
-const sigs = TOOLS.map(t => `| \`${t.name}(${t.params.join(', ')})\` |`).join('\n');
+// There is no art above the install command. A raster hero sat here and was
+// cut: it drew the model's view at roughly a third the size of the native one
+// when the real factor is 1372/1920, so the page's opening image contradicted
+// the panel it was introducing. It also cost the install snippet the first
+// screen. The transform panel tells the same story and is computed, so it can
+// be believed. Any hero that returns has to be generated and to scale.
+const HERO_HEIGHT_BUDGET = 0;
+const heroHeight = heroExists ? 1 : 0;
 
 const DESCRIPTIONS = {
   screenshot: 'PNG of the primary monitor, downscaled',
@@ -38,13 +38,13 @@ const DESCRIPTIONS = {
   right_click: 'Context-menu click',
   middle_click: 'Middle-button click',
   mouse_move: 'Move the cursor without clicking',
-  left_click_drag: 'Press, drag, release',
+  left_click_drag: 'Hold the left button from one point to another, over 0.4s',
   type: 'Type at the current focus, non-ASCII goes through the clipboard',
   key: 'A key or chord: `enter`, `ctrl+s`, `alt+f4`',
   scroll: '`up`, `down`, `left`, `right`; horizontal is sent as shift+wheel',
   cursor_position: 'Where the mouse is now',
-  record: `Sample the screen for up to ${FACTS.recordSeconds}s, up to ${FACTS.recordFrames} frames`,
-  wait: `Pause before the next action, up to ${FACTS.waitSeconds}s`,
+  record: `Up to ${FACTS.recordFrames} frames sampled over at most ${FACTS.recordSeconds}s, ${FACTS.recordDefaultFrames} over ${FACTS.recordDefaultSeconds}s by default`,
+  wait: `Pause before the next action, ${FACTS.waitSeconds}s ceiling`,
 };
 
 const missingDesc = TOOLS.filter(t => !DESCRIPTIONS[t.name]);
@@ -58,82 +58,89 @@ const table = TOOLS.map(
 ).join('\n');
 
 const md = `${MARKER}
-${hero}# winuse-mcp
+# winuse-mcp
 
-Computer use for Claude Code on Windows. An MCP server that lets Claude see your screen and drive your mouse and keyboard.
+An MCP server that lets Claude see your Windows screen and drive your mouse and keyboard.
 
-Claude Code ships computer use in the CLI on macOS only, so on Windows the \`computer-use\` server never appears in \`/mcp\`. This rebuilds the same screenshot-and-click loop on the Windows APIs: ${FACTS.tools} tools, ${FACTS.deps} dependencies, Python ${FACTS.python}.
+Claude Code's CLI [ships computer use on macOS only](https://code.claude.com/docs/en/computer-use), so on Windows the \`computer-use\` server never appears in \`/mcp\`. This rebuilds that screenshot-and-click loop on [mss](https://github.com/BoboTiG/python-mss) for capture and [pyautogui](https://github.com/asweigart/pyautogui) for input, with an explicit Windows DPI-awareness call so display scaling cannot skew clicks. ${FACTS.tools} tools, ${FACTS.deps} direct dependencies, Python ${FACTS.python} or newer.
 
 ## Install
 
-Needs Windows and [uv](https://docs.astral.sh/uv/). Add this to \`.mcp.json\` in a project, or to \`~/.claude.json\` for every project:
+You need Windows with an interactive desktop session, [uv](https://docs.astral.sh/uv/), and git on PATH. One command:
+
+\`\`\`bash
+claude mcp add --scope user winuse -- uvx --from git+https://github.com/${REPO}@${PIN} winuse-mcp
+\`\`\`
+
+Drop \`--scope user\` to add it to the current project only. To pick up changes later, re-run with a newer tag.
+
+<details>
+<summary>Configuring by hand instead</summary>
+
+Merge the \`winuse\` entry into the \`mcpServers\` object you already have. Do not paste the whole document over \`C:\\Users\\<you>\\.claude.json\`: Claude Code owns that file and pasting replaces your entire configuration.
 
 \`\`\`json
 {
   "mcpServers": {
     "winuse": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/${REPO}", "winuse-mcp"]
+      "args": ["--from", "git+https://github.com/${REPO}@${PIN}", "winuse-mcp"]
     }
   }
 }
 \`\`\`
 
-From a local clone instead:
+Project scope goes in \`.mcp.json\` at the repo root, and Claude Code asks you to trust it the first time that project opens. From a local clone, swap the command for \`uv\` with \`["run", "--directory", "C:/path/to/winuse-mcp", "winuse-mcp"]\`.
 
-\`\`\`json
-{
-  "mcpServers": {
-    "winuse": {
-      "command": "uv",
-      "args": ["run", "--directory", "C:/path/to/winuse-mcp", "winuse-mcp"]
-    }
-  }
-}
-\`\`\`
+</details>
 
-Restart Claude Code, then ask it to look at your screen or click through an app.
+### Check it worked
+
+Restart Claude Code and run \`/mcp\`. \`winuse\` should be listed as connected. First launch is slow, because uvx clones the repo and builds a virtual environment before the server answers.
+
+Then ask Claude to take a screenshot and describe what is on your screen. If the tools are there but nothing happens, see [Troubleshooting](#troubleshooting).
 
 ## Reach
 
 ${pic('reach', `The ${FACTS.tools} tools, grouped: ${TOOLS.map(t => t.name).join(', ')}.`)}
 
-<details>
-<summary>Signatures</summary>
-
 | Tool | Does |
 |---|---|
 ${table}
 
-Coordinates are always in screenshot space. See below.
-
-</details>
+Coordinates are always in the downscaled screenshot's pixel space, never native pixels.
 
 ## How coordinates work
 
 ${pic('transform', `A ${FACTS.exW} by ${FACTS.exH} screen captured as a ${FACTS.shotW} by ${FACTS.shotH} screenshot. Claude clicks at ${FACTS.modelX}, ${FACTS.modelY} in that image and the server fires the click at ${FACTS.nativeX}, ${FACTS.nativeY} on the real screen.`)}
 
-Screenshots are downscaled so the long edge is at most ${FACTS.longEdge} pixels, the same target Claude Code uses on macOS. Claude never sees native pixels, so it clicks in the downscaled image and the server converts back.
+Screenshots are downscaled so the long edge is at most ${FACTS.longEdge} pixels. Claude never sees native pixels: it clicks in the downscaled image, and the server converts the point back.
 
-A ${FACTS.exW}x${FACTS.exH} display captures at ${FACTS.shotW}x${FACTS.shotH}, a factor of ${down}. A click at ${FACTS.modelX}, ${FACTS.modelY} lands at ${FACTS.nativeX}, ${FACTS.nativeY}.
+A ${FACTS.exW}x${FACTS.exH} display captures at ${FACTS.shotW}x${FACTS.shotH}. Going back multiplies by ${FACTS.exW}/${FACTS.shotW}, so a click at ${FACTS.modelX}, ${FACTS.modelY} lands at ${FACTS.nativeX}, ${FACTS.nativeY}. Anthropic's macOS implementation uses the same ${FACTS.longEdge} pixel long edge, which its [docs give as a worked example](https://code.claude.com/docs/en/computer-use): 3456x2234 captured as roughly 1372x887.
 
 The server declares itself DPI-aware at startup, so Windows display scaling at 125% or 150% does not skew where clicks land.
 
 ## Safety
 
-This hands a language model control of your desktop. Anthropic's own version wraps the same loop in guardrails this server does not have: per-app approval, hiding apps Claude has not been approved for, keeping your terminal out of the screenshots, and model-side checks on each action.
+This hands a language model control of your desktop. Anthropic's version wraps the same loop in guardrails this server lacks: per-app approval, hiding unapproved apps, keeping your terminal out of the screenshots, and model-side checks on each action.
 
-What you do get:
+The controls that do exist here:
 
-- Claude Code asks before each tool call unless you allow-list it. Keep the input tools on manual approval and only allow-list \`screenshot\`.
-- Park the mouse in the top-left corner of the screen to abort the action in flight. That is pyautogui's failsafe, and it only watches that one corner. Aborting mid-drag releases the mouse button on the way out, so nothing is left dragging.
-- Everything visible reaches the model, including whatever happens to be on screen. Text on screen is untrusted input: treat instructions that appear there as a prompt injection risk.
+- Claude Code asks before each tool call unless you allow-list it. Allow-list the one read-only tool and leave the rest on manual approval, by putting \`"mcp__winuse__screenshot"\` in the \`permissions.allow\` array of \`.claude/settings.json\`.
+- Park the mouse at the top-left pixel of the screen to stop the run. pyautogui raises on its next call, so it ends the sequence rather than interrupting a click already sent, and it works during the slow parts: a drag tweens for 0.4s and typing runs a keystroke at a time. An aborted drag releases the button on its way out, so nothing is left dragging.
+- Every pixel of the primary monitor reaches the model, including windows you forgot were open. Treat text on screen as untrusted input: instructions that appear there are a prompt injection risk.
+- The install pins a tag. Pointing it at a branch instead would let a push change what drives your desktop, without you doing anything.
 
 ## Limitations
 
-- Primary monitor only.
+- Primary monitor only, chosen by the flag Windows reports, falling back to the monitor at the desktop origin.
+- Windows blocks synthetic input from a normal process to a window running as administrator, and the secure desktop behind a UAC prompt cannot be captured at all. Clicks aimed there are dropped by the operating system, and the tool still reports success, because nothing verifies that a click was accepted.
+- The session has to be interactive and unlocked. A locked screen or a disconnected remote desktop has nothing to capture.
 - Your terminal is not excluded from screenshots, so Claude sees its own session.
-- \`record\` samples still frames, at most ${FACTS.recordFrames} of them. There is no video path.
+- Clicks are clamped one pixel inside the monitor, which puts the outermost pixel row and column out of reach. That pixel is the failsafe point, and landing the cursor on it would make every later call abort.
+- Typing anything non-ASCII goes through the clipboard: it copies, sends ctrl+v, then puts your clipboard back. That fails wherever ctrl+v is not paste, such as a terminal.
+- Every click, drag and scroll moves the real cursor first, so your pointer jumps while Claude works.
+- \`record\` returns up to ${FACTS.recordFrames} still frames sampled over at most ${FACTS.recordSeconds}s. Frames only, no video, and each one costs image tokens.
 
 ## Development
 
@@ -142,23 +149,39 @@ uv sync
 uv run winuse-mcp
 \`\`\`
 
-\`scripts/client_test.py\` is the reference check: it speaks MCP over stdio to the server, lists the tools, takes a screenshot, moves the mouse and reads the position back, records frames, and asserts a bad key combo errors.
+\`scripts/client_test.py\` drives the real server over stdio and exits non-zero on the first failed check. It moves your mouse while it runs.
 
 \`\`\`bash
 uv run python scripts/client_test.py
 \`\`\`
 
-\`scripts/failsafe_test.py\` covers the paths a user hits while aborting, with pyautogui stubbed so no real abort is needed: a drag cut short still releases the button, a horizontal scroll cut short still releases shift, chord parsing handles a literal \`+\`, and no click can land on the failsafe pixel.
+\`scripts/failsafe_test.py\` covers what happens when a run is aborted, with pyautogui stubbed so no real abort is needed. An aborted drag releases the button, an aborted horizontal scroll releases shift, a chord ending in \`+\` parses as the plus key, and the model's origin clamps away from the failsafe point.
 
 \`\`\`bash
 uv run python scripts/failsafe_test.py
 \`\`\`
 
-This README is built. Every number on the page is recomputed from the source at build time, and the build fails if one drifts.
+\`README.md\` is generated. The build reads the tool names, their arguments and the capacity constants straight out of \`server.py\`, so nothing on the page is typed by hand, and it refuses to write when a tool has no description, an asset is missing, or the art grows past its height budget. CI regenerates the page and fails if what is committed differs.
 
 \`\`\`bash
 node scripts/readme/build.mjs
 \`\`\`
+
+## Troubleshooting
+
+**\`winuse\` is missing from \`/mcp\`.** The entry did not load. Run \`claude mcp list\` to see what Claude Code has, and re-add it if the name is absent. A project-scoped \`.mcp.json\` also needs you to accept the trust prompt when the project opens; declining it leaves the server silently absent.
+
+**It appears, then fails to connect.** Run the command by hand and read the error:
+
+\`\`\`bash
+uvx --from git+https://github.com/${REPO}@${PIN} winuse-mcp
+\`\`\`
+
+It should start and wait quietly for input on stdin. \`uvx\` missing means uv is not installed or not on PATH. A git error means git is missing, or a proxy is blocking the clone. If it hangs on first run, that is the clone and the environment build; give it a minute before deciding it is broken.
+
+**The tools are there and nothing moves.** Check whether the target window runs as administrator, and whether the screen was locked. Both are in [Limitations](#limitations) and neither reports an error.
+
+**Clicks land in the wrong place.** Confirm the target is on the primary monitor. Ask Claude for \`cursor_position\` after a \`mouse_move\` to a known point; one pixel of drift is expected, more than that is not.
 
 ## License
 
@@ -188,9 +211,19 @@ for (const m of md.matchAll(/(?:src|srcset)="((?:assets)\/[^"]+)"/g)) {
   if (!fs.existsSync(path.join(ROOT, m[1]))) fail(`missing asset ${m[1]}`);
 }
 
-// The install command is near the top, not buried under the art.
+// Guard the art's rendered height, not its line count. Markdown lines are
+// blind to a 400px image, which is exactly how the install command ended up
+// below the fold the first time.
+if (heroHeight > HERO_HEIGHT_BUDGET) {
+  fail(`assets/img/loop.png is back in the repo but the page has no slot for it; see the note at the top of this file`);
+}
 const installLine = md.split('\n').findIndex(l => l === '## Install');
-if (installLine > 14) fail(`install section at line ${installLine}, too far down`);
+if (installLine < 0) fail('install heading missing');
+
+// The pinned ref has to exist, or the one command on the page fails for
+// everyone who runs it.
+const tags = execFileSync('git', ['tag', '--list'], { cwd: ROOT, encoding: 'utf8' }).split('\n');
+if (!tags.includes(PIN)) fail(`README pins ${PIN}, which is not a tag in this repo`);
 
 if (bad) process.exit(1);
 

@@ -4,30 +4,51 @@
 //   1. The conceit is the coordinate transform: one screen, two coordinate
 //      spaces, and the moment sight becomes action. Every panel is a view of
 //      that loop. Nothing decorative gets drawn.
-//   2. One accent colour, and it means exactly one thing: this is where an
-//      action fires. It is spent on the crosshair, the return arrow's head,
-//      and nothing else, ever.
+//   2. One accent colour, and it means exactly one thing: the point an action
+//      lands on. It is spent on the two crosshairs, which are one point drawn
+//      in both spaces, and on the returning arrow that carries the click. Not
+//      on the coordinate readouts, not on the outgoing screenshot beam, and
+//      not on the screen origin, where a click is refused rather than fired.
 //   3. Both grids step every 160 pixels of their own coordinate space, so the
 //      cells land at the same on-screen size. That equality is the point: it
 //      shows the two frames are one picture at two pixel counts, and the frame
 //      size difference is what carries the downscale. The grid is never
 //      decoration and its step is never chosen by eye.
 //   4. Every number rendered here is computed in facts.mjs from source that is
-//      still in the repo. No number is typed into a panel.
+//      still in the repo. No number is typed into a panel. The one hand-made
+//      input is which group a tool belongs to, in items.json: the source cannot
+//      say what a tool means. The counts are lengths of those groups, and the
+//      build rejects a grouping that names an unknown tool or misses one.
+//   4b. Ratios are printed as ratios, never as rounded decimals. A reader who
+//      redoes the arithmetic must land on the coordinate the panel shows, and
+//      0.715 does not: 686 / 0.715 is 959.4, off by a pixel from the truth.
 //   5. Monospace carries coordinates and tool names. Sans carries labels.
 //      Nothing else gets a typeface.
 //   6. It survives 390px: narrow variants are recomposed (stacked), never the
 //      wide panel scaled down.
 //   7. It survives both themes, with no script, no hover, no external request.
-//   8. Motion loops or it does not exist, and reduced motion restores the end
-//      state rather than only switching animation off.
+//      Every panel ships a light and a dark file.
+//   7b. Everything on the page is generated here. A drawn-by-hand raster hero
+//      shipped once and was cut: it put the model's frame at roughly a third
+//      of the native one where the true factor is 1372/1920, so the opening
+//      image argued against the panel underneath it. Art that cannot be
+//      computed cannot be kept honest, and this page is mostly a claim about
+//      arithmetic.
+//   8. Motion loops or it does not exist, and every claim the panel makes has
+//      to survive motion being switched off. Direction is carried by drawn
+//      arrowheads, not by the travelling dots, so reduced motion loses the
+//      dots and the landing pulse and nothing else.
 import fs from 'node:fs';
 import path from 'node:path';
 import { FACTS, TOOLS, ROOT } from './facts.mjs';
 
+// frame sits above grid in both themes, and beam sits above frame. Reading the
+// same order in light and dark is what stops the hierarchy inverting when the
+// page flips: a frame that recedes behind its own grid in one theme and steps
+// in front of it in the other is a different drawing, not a different palette.
 const THEMES = {
-  light: { ink: '#1f2328', mute: '#59636e', rule: '#d1d9e0', grid: '#ccd4dd', accent: '#bc4c00' },
-  dark: { ink: '#f0f6fc', mute: '#9198a1', rule: '#3d444d', grid: '#2f363e', accent: '#f0883e' },
+  light: { ink: '#1f2328', mute: '#59636e', rule: '#d1d9e0', grid: '#dbe1e8', frame: '#aeb8c2', beam: '#6e7781', accent: '#bc4c00' },
+  dark: { ink: '#f0f6fc', mute: '#9198a1', rule: '#3d444d', grid: '#272d35', frame: '#4a525c', beam: '#7d8590', accent: '#f0883e' },
 };
 const MONO = "ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace";
 const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif";
@@ -69,45 +90,55 @@ function grid(x, y, w, h, spaceW, spaceH, step, cls) {
   return parts.join('\n');
 }
 
-function crosshair(cx, cy, arm, id) {
-  return `<g class="hit ${id}">
+function crosshair(cx, cy, arm) {
+  // Both crosshairs are the same size on purpose: they mark one point, so
+  // drawing them differently would say they are two.
+  return `<g class="hit">
 <line class="ax" x1="${r1(cx - arm)}" y1="${r1(cy)}" x2="${r1(cx + arm)}" y2="${r1(cy)}"/>
 <line class="ax" x1="${r1(cx)}" y1="${r1(cy - arm)}" x2="${r1(cx)}" y2="${r1(cy + arm)}"/>
 <circle class="dot" cx="${r1(cx)}" cy="${r1(cy)}" r="3.2"/>
 </g>`;
 }
 
+// A filled triangle at the end of a beam, rotated to the travel direction.
+// Direction has to survive with motion switched off, so it is drawn, not
+// implied by the travelling dot.
+function head(x, y, angle, cls) {
+  return `<path class="${cls}" d="M 0 0 L -9 -3.6 L -9 3.6 Z" transform="translate(${r1(x)} ${r1(y)}) rotate(${r1(angle)})"/>`;
+}
+
 function transform(t, narrow) {
   const f = FACTS;
-  const down = f.shotW / f.exW;
-  const up = f.exW / f.shotW;
-  // The marked point as a fraction of each frame, identical in both spaces:
-  // that sameness is the whole claim the panel makes.
   const fx = f.modelX / f.shotW;
   const fy = f.modelY / f.shotH;
+  const ARM = 14;
 
   const W = narrow ? 380 : 880;
-  const H = narrow ? 470 : 300;
+  const INSET = narrow ? 20 : 40;
 
-  let nx, ny, nw, nh, mx, my, mw, mh;
+  let nx, ny, nw, nh, mx, my, mw, mh, H;
   if (narrow) {
-    nw = 300;
+    nw = W - INSET * 2;
     nh = r1((nw * f.exH) / f.exW);
-    nx = 40;
-    ny = 52;
-    mw = r1(nw * down);
+    nx = INSET;
+    ny = 46;
+    mw = r1(nw * (f.shotW / f.exW));
     mh = r1((mw * f.shotH) / f.shotW);
-    mx = 40;
-    my = r1(ny + nh + 116);
+    mx = INSET;
+    my = r1(ny + nh + 148);
+    H = Math.round(my + mh + 34);
   } else {
     nw = 330;
     nh = r1((nw * f.exH) / f.exW);
-    nx = 26;
-    ny = 74;
-    mw = r1(nw * down);
+    nx = INSET;
+    ny = 76;
+    mw = r1(nw * (f.shotW / f.exW));
     mh = r1((mw * f.shotH) / f.shotW);
-    mx = 566;
+    // Right inset matches the left one, so the drawing sits in the column
+    // rather than drifting to one side of it.
+    mx = r1(W - INSET - mw);
     my = r1(ny + (nh - mh) / 2);
+    H = 300;
   }
 
   const ncx = r1(nx + fx * nw);
@@ -115,23 +146,54 @@ function transform(t, narrow) {
   const mcx = r1(mx + fx * mw);
   const mcy = r1(my + fy * mh);
 
-  // Travel paths: capture goes native -> model, the click comes back.
-  const capture = narrow
-    ? `M ${ncx} ${r1(ny + nh)} C ${ncx} ${r1(ny + nh + 46)}, ${mcx} ${r1(my - 60)}, ${mcx} ${r1(my)}`
-    : `M ${r1(nx + nw)} ${r1(ny + 24)} C ${r1(nx + nw + 78)} ${r1(ny + 24)}, ${r1(mx - 78)} ${r1(my + 16)}, ${r1(mx)} ${r1(my + 16)}`;
-  const click = narrow
-    ? `M ${r1(mx + 14)} ${r1(my + mh)} C ${r1(mx + 14)} ${r1(my + mh + 40)}, ${r1(nx + 14)} ${r1(ny + nh + 74)}, ${r1(nx + 14)} ${r1(ny + nh + 30)}`
-    : `M ${r1(mx)} ${r1(my + mh - 16)} C ${r1(mx - 78)} ${r1(my + mh - 16)}, ${r1(nx + nw + 78)} ${r1(ny + nh - 24)}, ${r1(nx + nw)} ${r1(ny + nh - 24)}`;
+  // Beams run frame edge to frame edge, clear of the labels. Each one ends
+  // short of its arrowhead so the dash never pokes through the tip.
+  let capA, capB, clkA, clkB, capLabel, clkLabel, capAngle, clkAngle;
+  if (narrow) {
+    // Both beams are placed within the narrower frame's width, so each one
+    // starts and ends on a frame edge rather than in empty space beside it.
+    const capX = r1(mx + mw * 0.52);
+    const clkX = r1(mx + mw * 0.9);
+    capA = [capX, r1(ny + nh)];
+    capB = [capX, r1(my)];
+    clkA = [clkX, r1(my)];
+    clkB = [clkX, r1(ny + nh)];
+    capAngle = 90;
+    clkAngle = -90;
+    // Stacked at the left margin, clear of both beams.
+    capLabel = [nx, r1(ny + nh + 38)];
+    clkLabel = [nx, r1(ny + nh + 76)];
+  } else {
+    capA = [r1(nx + nw), r1(ny + 26)];
+    capB = [mx, r1(my + 18)];
+    clkA = [mx, r1(my + mh - 18)];
+    clkB = [r1(nx + nw), r1(ny + nh - 26)];
+    capAngle = 0;
+    clkAngle = 180;
+    // Labels sit above their beam with clearance, never straddling it.
+    capLabel = [r1(nx + nw + 46), r1(ny - 4)];
+    clkLabel = [r1(nx + nw + 46), r1(ny + nh + 4)];
+  }
 
-  const capLabel = narrow ? [r1(nx + 150), r1(ny + nh + 40)] : [r1(nx + nw + 80), r1(ny + 12)];
-  const clkLabel = narrow ? [r1(nx + 150), r1(ny + nh + 74)] : [r1(nx + nw + 80), r1(ny + nh - 34)];
+  const bez = (a, b, vertical) =>
+    vertical
+      ? `M ${a[0]} ${a[1]} C ${a[0]} ${r1(a[1] + (b[1] - a[1]) * 0.5)}, ${b[0]} ${r1(b[1] - (b[1] - a[1]) * 0.5)}, ${b[0]} ${b[1]}`
+      : `M ${a[0]} ${a[1]} C ${r1(a[0] + (b[0] - a[0]) * 0.45)} ${a[1]}, ${r1(b[0] - (b[0] - a[0]) * 0.45)} ${b[1]}, ${b[0]} ${b[1]}`;
+
+  const capPath = bez(capA, capB, narrow);
+  const clkPath = bez(clkA, clkB, narrow);
+
+  // The origin cell is the one coordinate an action is refused at, so it is
+  // marked in grey: the accent means a click fires, and here it never does.
+  const originNote = `<circle class="orig" cx="${r1(nx)}" cy="${r1(ny)}" r="2.6"/>
+<text class="tiny" x="${r1(nx + 8)}" y="${r1(ny + 15)}">0, 0 refuses clicks</text>`;
 
   const body = `
 <g class="lab">
-<text class="ttl" x="${nx}" y="${narrow ? 26 : 34}">native screen</text>
-<text class="sub" x="${nx}" y="${narrow ? 42 : 52}">what Windows draws</text>
-<text class="ttl" x="${mx}" y="${narrow ? r1(my - 26) : 34}">model screen</text>
-<text class="sub" x="${mx}" y="${narrow ? r1(my - 10) : 52}">what Claude is sent</text>
+<text class="ttl" x="${nx}" y="${r1(ny - 26)}">native screen</text>
+<text class="sub" x="${nx}" y="${r1(ny - 10)}">what Windows draws</text>
+<text class="ttl" x="${mx}" y="${r1(my - 26)}">model screen</text>
+<text class="sub" x="${mx}" y="${r1(my - 10)}">what Claude is sent</text>
 </g>
 
 <g class="gridline">${grid(nx, ny, nw, nh, f.exW, f.exH, 160, 'g')}</g>
@@ -140,41 +202,49 @@ function transform(t, narrow) {
 <rect class="frame" x="${nx}" y="${ny}" width="${nw}" height="${nh}"/>
 <rect class="frame" x="${mx}" y="${my}" width="${mw}" height="${mh}"/>
 
-<text class="dim" x="${nx}" y="${r1(ny + nh + 16)}">${f.exW} x ${f.exH}</text>
-<text class="dim" x="${mx}" y="${r1(my + mh + 16)}">${f.shotW} x ${f.shotH}</text>
+${originNote}
 
-<path class="beam" d="${capture}"/>
-<path class="beam" d="${click}"/>
-<circle class="trav t1" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.06;0.34;1" calcMode="linear" path="${capture}"/></circle>
-<circle class="trav t2" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.5;0.78;1" calcMode="linear" path="${click}"/></circle>
+<text class="dim" x="${nx}" y="${r1(ny + nh + 17)}">${f.exW} x ${f.exH}</text>
+<text class="dim" x="${mx}" y="${r1(my + mh + 17)}">${f.shotW} x ${f.shotH}</text>
+
+<path class="beam" d="${capPath}"/>
+<path class="beam ret" d="${clkPath}"/>
+${head(capB[0], capB[1], capAngle, 'tip')}
+${head(clkB[0], clkB[1], clkAngle, 'tip fire')}
+<circle class="trav t1" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.06;0.34;1" calcMode="linear" path="${capPath}"/></circle>
+<circle class="trav t2 fire" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.5;0.78;1" calcMode="linear" path="${clkPath}"/></circle>
 
 <g class="lab">
 <text class="cap" x="${capLabel[0]}" y="${capLabel[1]}">screenshot</text>
-<text class="num" x="${capLabel[0]}" y="${r1(capLabel[1] + 15)}">x ${down.toFixed(3)}</text>
+<text class="num" x="${capLabel[0]}" y="${r1(capLabel[1] + 15)}">x ${f.shotW}/${f.exW}</text>
 <text class="cap" x="${clkLabel[0]}" y="${clkLabel[1]}">click</text>
-<text class="num" x="${clkLabel[0]}" y="${r1(clkLabel[1] + 15)}">x ${up.toFixed(3)}</text>
+<text class="num" x="${clkLabel[0]}" y="${r1(clkLabel[1] + 15)}">x ${f.exW}/${f.shotW}</text>
 </g>
 
-${crosshair(mcx, mcy, 13, 'h1')}
-${crosshair(ncx, ncy, 15, 'h2')}
+${crosshair(mcx, mcy, ARM)}
+${crosshair(ncx, ncy, ARM)}
 <circle class="ring" cx="${ncx}" cy="${ncy}" r="6"/>
 
-<text class="coord" x="${r1(mcx + 18)}" y="${r1(mcy - 8)}">${f.modelX}, ${f.modelY}</text>
-<text class="coord" x="${r1(ncx + 20)}" y="${r1(ncy - 10)}">${f.nativeX}, ${f.nativeY}</text>
+<text class="coord" x="${r1(mcx + 18)}" y="${r1(mcy - 9)}">${f.modelX}, ${f.modelY}</text>
+<text class="coord" x="${r1(ncx + 18)}" y="${r1(ncy - 9)}">${f.nativeX}, ${f.nativeY}</text>
 `;
 
   const css = `
-.frame{fill:none;stroke:${t.rule};stroke-width:1.25}
+.frame{fill:none;stroke:${t.frame};stroke-width:1.25}
 .g{stroke:${t.grid};stroke-width:1}
-.beam{fill:none;stroke:${t.rule};stroke-width:1.1;stroke-dasharray:3 4;opacity:.9}
-.trav{fill:${t.accent}}
+.beam{fill:none;stroke:${t.beam};stroke-width:1.2;stroke-dasharray:3 4}
+.tip{fill:${t.beam}}
+.fire{fill:${t.accent}}
+.trav{fill:${t.beam}}
 .ax{stroke:${t.accent};stroke-width:1.4}
 .dot{fill:${t.accent}}
+.orig{fill:${t.mute}}
 .ttl{font:600 ${narrow ? 13 : 14}px ${SANS};fill:${t.ink}}
-.sub{font:400 ${narrow ? 11 : 12}px ${SANS};fill:${t.mute}}
-.cap{font:600 12px ${SANS};fill:${t.ink}}
-.num,.dim{font:400 11px ${MONO};fill:${t.mute}}
-.coord{font:600 12px ${MONO};fill:${t.accent}}
+.sub{font:400 ${narrow ? 11.5 : 12}px ${SANS};fill:${t.mute}}
+.cap{font:600 ${narrow ? 12 : 12.5}px ${SANS};fill:${t.ink}}
+.num,.dim{font:400 ${narrow ? 12 : 11.5}px ${MONO};fill:${t.mute}}
+.tiny{font:400 ${narrow ? 10.5 : 10}px ${MONO};fill:${t.mute}}
+.coord{font:600 ${narrow ? 12.5 : 12.5}px ${MONO};fill:${t.ink}}
 .ring{fill:none;stroke:${t.accent};stroke-width:1.6;opacity:0}
 .t1,.t2{opacity:0}
 .t1{animation:t1 6s linear infinite}
@@ -184,7 +254,7 @@ ${crosshair(ncx, ncy, 15, 'h2')}
 @keyframes t2{0%,49%{opacity:0}50%,77%{opacity:1}79%,100%{opacity:0}}
 @keyframes ring{0%,77%{opacity:0;r:6}80%{opacity:.9;r:7}92%,100%{opacity:0;r:19}}`;
 
-  const label = `The same point in two coordinate spaces. A ${f.exW} by ${f.exH} screen is captured as a ${f.shotW} by ${f.shotH} screenshot, scaled by ${down.toFixed(3)}. Claude clicks at ${f.modelX}, ${f.modelY} in that screenshot and the server fires the click at ${f.nativeX}, ${f.nativeY} on the real screen.`;
+  const label = `The same point in two coordinate spaces. A ${f.exW} by ${f.exH} screen is captured as a ${f.shotW} by ${f.shotH} screenshot. Claude clicks at ${f.modelX}, ${f.modelY} in that screenshot and the server multiplies by ${f.exW}/${f.shotW} to fire the click at ${f.nativeX}, ${f.nativeY} on the real screen. The screen origin is marked separately, because a click is never allowed to land there.`;
   return svg(W, H, label, body, css);
 }
 
@@ -229,14 +299,24 @@ function reach(t, narrow) {
     rows.push({ g, lines });
   }
 
+  // Proportional sans averages about 0.505 of the font size per character,
+  // which is enough to keep the count column clear of the longest note.
+  const noteSize = narrow ? 11.5 : 12;
+  const noteX = left + (narrow ? 46 : 52);
+  const widestNote = Math.max(...items.groups.map(g => g.note.length)) * noteSize * 0.505;
+  const countX = Math.round(noteX + widestNote + 16);
+
   const headH = narrow ? 30 : 34;
   let y = narrow ? 20 : 24;
   const parts = [];
   for (const { g, lines } of rows) {
     parts.push(`<text class="gl" x="${left}" y="${y}">${esc(g.label)}</text>`);
-    parts.push(`<text class="gn" x="${left + (narrow ? 46 : 52)}" y="${y}">${esc(g.note)}</text>`);
+    parts.push(`<text class="gn" x="${noteX}" y="${y}">${esc(g.note)}</text>`);
+    // The count reads as a count: it sits next to the label it counts, not
+    // stranded on the far margin where it looked like a page number. Its
+    // column clears the longest note, measured rather than guessed.
     parts.push(
-      `<text class="gc" x="${(narrow ? 380 : 880) - left}" y="${y}" text-anchor="end">${g.tools.length}</text>`,
+      `<text class="gc" x="${countX}" y="${y}">${g.tools.length} ${g.tools.length === 1 ? 'tool' : 'tools'}</text>`,
     );
     parts.push(
       `<line class="rule" x1="${left}" y1="${r1(y + 8)}" x2="${(narrow ? 380 : 880) - left}" y2="${r1(y + 8)}"/>`,
@@ -256,20 +336,28 @@ function reach(t, narrow) {
     y = ly + (headH - rowH) + (narrow ? 14 : 12);
   }
 
-  const H = Math.round(y - (narrow ? 6 : 4));
   const W = narrow ? 380 : 880;
+  // Close the arithmetic on the page. A reader should not have to add the
+  // group counts to find out how many tools there are.
+  const sum = items.groups.map(g => g.tools.length).join(' + ');
+  parts.push(
+    `<line class="rule" x1="${left}" y1="${r1(y - (narrow ? 6 : 4))}" x2="${W - left}" y2="${r1(y - (narrow ? 6 : 4))}"/>`,
+  );
+  parts.push(`<text class="tot" x="${left}" y="${r1(y + (narrow ? 12 : 14))}">${sum} = ${TOOLS.length} tools</text>`);
+  const H = Math.round(y + (narrow ? 22 : 24));
 
   const css = `
-.gl{font:600 ${narrow ? 12 : 13}px ${SANS};fill:${t.ink}}
-.gn{font:400 ${narrow ? 11 : 12}px ${SANS};fill:${t.mute}}
-.gc{font:600 ${narrow ? 11 : 12}px ${MONO};fill:${t.mute}}
+.gl{font:600 ${narrow ? 12.5 : 13}px ${SANS};fill:${t.ink}}
+.gn{font:400 ${narrow ? 11.5 : 12}px ${SANS};fill:${t.mute}}
+.gc{font:400 ${narrow ? 11.5 : 12}px ${MONO};fill:${t.mute}}
+.tot{font:600 ${narrow ? 12 : 12.5}px ${MONO};fill:${t.ink}}
 .rule{stroke:${t.rule};stroke-width:1}
-.chip{fill:none;stroke:${t.rule};stroke-width:1}
+.chip{fill:none;stroke:${t.frame};stroke-width:1}
 .cn{font:400 ${fs_}px ${MONO};fill:${t.ink}}`;
 
-  const label = `The ${TOOLS.length} tools this server exposes, grouped by what they do: ${items.groups
-    .map(g => `${g.tools.length} that ${g.label} (${g.tools.join(', ')})`)
-    .join('; ')}.`;
+  const label = `The ${TOOLS.length} tools this server exposes, grouped by what they do. ${items.groups
+    .map(g => `${g.tools.length} ${g.label.replace(/s$/, '')}: ${g.tools.join(', ')}`)
+    .join('. ')}.`;
   return svg(W, H, label, parts.join('\n'), css);
 }
 

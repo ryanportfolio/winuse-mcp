@@ -2,14 +2,14 @@
   "groups": [
     {
       "id": "see",
-      "label": "sees",
-      "note": "pixels in",
+      "label": "reads",
+      "note": "what comes back",
       "tools": ["screenshot", "record", "cursor_position"]
     },
     {
       "id": "act",
       "label": "acts",
-      "note": "events out",
+      "note": "what gets sent",
       "tools": [
         "left_click",
         "double_click",
@@ -26,7 +26,7 @@
     {
       "id": "pace",
       "label": "waits",
-      "note": "lets the screen settle",
+      "note": "pauses between actions",
       "tools": ["wait"]
     }
   ]

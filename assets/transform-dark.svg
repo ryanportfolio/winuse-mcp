@@ -1,16 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300" role="img" aria-label="The same point in two coordinate spaces. A 1920 by 1080 screen is captured as a 1372 by 772 screenshot, scaled by 0.715. Claude clicks at 686, 443 in that screenshot and the server fires the click at 960, 620 on the real screen.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300" role="img" aria-label="The same point in two coordinate spaces. A 1920 by 1080 screen is captured as a 1372 by 772 screenshot. Claude clicks at 686, 443 in that screenshot and the server multiplies by 1920/1372 to fire the click at 960, 620 on the real screen. The screen origin is marked separately, because a click is never allowed to land there.">
 <style>
-.frame{fill:none;stroke:#3d444d;stroke-width:1.25}
-.g{stroke:#2f363e;stroke-width:1}
-.beam{fill:none;stroke:#3d444d;stroke-width:1.1;stroke-dasharray:3 4;opacity:.9}
-.trav{fill:#f0883e}
+.frame{fill:none;stroke:#4a525c;stroke-width:1.25}
+.g{stroke:#272d35;stroke-width:1}
+.beam{fill:none;stroke:#7d8590;stroke-width:1.2;stroke-dasharray:3 4}
+.tip{fill:#7d8590}
+.fire{fill:#f0883e}
+.trav{fill:#7d8590}
 .ax{stroke:#f0883e;stroke-width:1.4}
 .dot{fill:#f0883e}
+.orig{fill:#9198a1}
 .ttl{font:600 14px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#f0f6fc}
 .sub{font:400 12px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#9198a1}
-.cap{font:600 12px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#f0f6fc}
-.num,.dim{font:400 11px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#9198a1}
-.coord{font:600 12px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#f0883e}
+.cap{font:600 12.5px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;fill:#f0f6fc}
+.num,.dim{font:400 11.5px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#9198a1}
+.tiny{font:400 10px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#9198a1}
+.coord{font:600 12.5px ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,'Liberation Mono',monospace;fill:#f0f6fc}
 .ring{fill:none;stroke:#f0883e;stroke-width:1.6;opacity:0}
 .t1,.t2{opacity:0}
 .t1{animation:t1 6s linear infinite}
@@ -25,73 +29,78 @@
 }</style>
 
 <g class="lab">
-<text class="ttl" x="26" y="34">native screen</text>
-<text class="sub" x="26" y="52">what Windows draws</text>
-<text class="ttl" x="566" y="34">model screen</text>
-<text class="sub" x="566" y="52">what Claude is sent</text>
+<text class="ttl" x="40" y="50">native screen</text>
+<text class="sub" x="40" y="66">what Windows draws</text>
+<text class="ttl" x="604.2" y="76.5">model screen</text>
+<text class="sub" x="604.2" y="92.5">what Claude is sent</text>
 </g>
 
-<g class="gridline"><line class="g" x1="53.5" y1="74" x2="53.5" y2="259.6"/>
-<line class="g" x1="81" y1="74" x2="81" y2="259.6"/>
-<line class="g" x1="108.5" y1="74" x2="108.5" y2="259.6"/>
-<line class="g" x1="136" y1="74" x2="136" y2="259.6"/>
-<line class="g" x1="163.5" y1="74" x2="163.5" y2="259.6"/>
-<line class="g" x1="191" y1="74" x2="191" y2="259.6"/>
-<line class="g" x1="218.5" y1="74" x2="218.5" y2="259.6"/>
-<line class="g" x1="246" y1="74" x2="246" y2="259.6"/>
-<line class="g" x1="273.5" y1="74" x2="273.5" y2="259.6"/>
-<line class="g" x1="301" y1="74" x2="301" y2="259.6"/>
-<line class="g" x1="328.5" y1="74" x2="328.5" y2="259.6"/>
-<line class="g" x1="26" y1="101.5" x2="356" y2="101.5"/>
-<line class="g" x1="26" y1="129" x2="356" y2="129"/>
-<line class="g" x1="26" y1="156.5" x2="356" y2="156.5"/>
-<line class="g" x1="26" y1="184" x2="356" y2="184"/>
-<line class="g" x1="26" y1="211.5" x2="356" y2="211.5"/>
-<line class="g" x1="26" y1="239" x2="356" y2="239"/></g>
-<g class="gridline"><line class="g" x1="593.5" y1="100.5" x2="593.5" y2="233.2"/>
-<line class="g" x1="621" y1="100.5" x2="621" y2="233.2"/>
-<line class="g" x1="648.5" y1="100.5" x2="648.5" y2="233.2"/>
-<line class="g" x1="676" y1="100.5" x2="676" y2="233.2"/>
-<line class="g" x1="703.5" y1="100.5" x2="703.5" y2="233.2"/>
-<line class="g" x1="731" y1="100.5" x2="731" y2="233.2"/>
-<line class="g" x1="758.5" y1="100.5" x2="758.5" y2="233.2"/>
-<line class="g" x1="786" y1="100.5" x2="786" y2="233.2"/>
-<line class="g" x1="566" y1="128" x2="801.8" y2="128"/>
-<line class="g" x1="566" y1="155.5" x2="801.8" y2="155.5"/>
-<line class="g" x1="566" y1="183" x2="801.8" y2="183"/>
-<line class="g" x1="566" y1="210.5" x2="801.8" y2="210.5"/></g>
+<g class="gridline"><line class="g" x1="67.5" y1="76" x2="67.5" y2="261.6"/>
+<line class="g" x1="95" y1="76" x2="95" y2="261.6"/>
+<line class="g" x1="122.5" y1="76" x2="122.5" y2="261.6"/>
+<line class="g" x1="150" y1="76" x2="150" y2="261.6"/>
+<line class="g" x1="177.5" y1="76" x2="177.5" y2="261.6"/>
+<line class="g" x1="205" y1="76" x2="205" y2="261.6"/>
+<line class="g" x1="232.5" y1="76" x2="232.5" y2="261.6"/>
+<line class="g" x1="260" y1="76" x2="260" y2="261.6"/>
+<line class="g" x1="287.5" y1="76" x2="287.5" y2="261.6"/>
+<line class="g" x1="315" y1="76" x2="315" y2="261.6"/>
+<line class="g" x1="342.5" y1="76" x2="342.5" y2="261.6"/>
+<line class="g" x1="40" y1="103.5" x2="370" y2="103.5"/>
+<line class="g" x1="40" y1="131" x2="370" y2="131"/>
+<line class="g" x1="40" y1="158.5" x2="370" y2="158.5"/>
+<line class="g" x1="40" y1="186" x2="370" y2="186"/>
+<line class="g" x1="40" y1="213.5" x2="370" y2="213.5"/>
+<line class="g" x1="40" y1="241" x2="370" y2="241"/></g>
+<g class="gridline"><line class="g" x1="631.7" y1="102.5" x2="631.7" y2="235.2"/>
+<line class="g" x1="659.2" y1="102.5" x2="659.2" y2="235.2"/>
+<line class="g" x1="686.7" y1="102.5" x2="686.7" y2="235.2"/>
+<line class="g" x1="714.2" y1="102.5" x2="714.2" y2="235.2"/>
+<line class="g" x1="741.7" y1="102.5" x2="741.7" y2="235.2"/>
+<line class="g" x1="769.2" y1="102.5" x2="769.2" y2="235.2"/>
+<line class="g" x1="796.7" y1="102.5" x2="796.7" y2="235.2"/>
+<line class="g" x1="824.2" y1="102.5" x2="824.2" y2="235.2"/>
+<line class="g" x1="604.2" y1="130" x2="840" y2="130"/>
+<line class="g" x1="604.2" y1="157.5" x2="840" y2="157.5"/>
+<line class="g" x1="604.2" y1="185" x2="840" y2="185"/>
+<line class="g" x1="604.2" y1="212.5" x2="840" y2="212.5"/></g>
 
-<rect class="frame" x="26" y="74" width="330" height="185.6"/>
-<rect class="frame" x="566" y="100.5" width="235.8" height="132.7"/>
+<rect class="frame" x="40" y="76" width="330" height="185.6"/>
+<rect class="frame" x="604.2" y="102.5" width="235.8" height="132.7"/>
 
-<text class="dim" x="26" y="275.6">1920 x 1080</text>
-<text class="dim" x="566" y="249.2">1372 x 772</text>
+<circle class="orig" cx="40" cy="76" r="2.6"/>
+<text class="tiny" x="48" y="91">0, 0 refuses clicks</text>
 
-<path class="beam" d="M 356 98 C 434 98, 488 116.5, 566 116.5"/>
-<path class="beam" d="M 566 217.2 C 488 217.2, 434 235.6, 356 235.6"/>
-<circle class="trav t1" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.06;0.34;1" calcMode="linear" path="M 356 98 C 434 98, 488 116.5, 566 116.5"/></circle>
-<circle class="trav t2" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.5;0.78;1" calcMode="linear" path="M 566 217.2 C 488 217.2, 434 235.6, 356 235.6"/></circle>
+<text class="dim" x="40" y="278.6">1920 x 1080</text>
+<text class="dim" x="604.2" y="252.2">1372 x 772</text>
+
+<path class="beam" d="M 370 102 C 475.4 102, 498.8 120.5, 604.2 120.5"/>
+<path class="beam ret" d="M 604.2 217.2 C 498.8 217.2, 475.4 235.6, 370 235.6"/>
+<path class="tip" d="M 0 0 L -9 -3.6 L -9 3.6 Z" transform="translate(604.2 120.5) rotate(0)"/>
+<path class="tip fire" d="M 0 0 L -9 -3.6 L -9 3.6 Z" transform="translate(370 235.6) rotate(180)"/>
+<circle class="trav t1" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.06;0.34;1" calcMode="linear" path="M 370 102 C 475.4 102, 498.8 120.5, 604.2 120.5"/></circle>
+<circle class="trav t2 fire" r="3.4"><animateMotion dur="6s" begin="0s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.5;0.78;1" calcMode="linear" path="M 604.2 217.2 C 498.8 217.2, 475.4 235.6, 370 235.6"/></circle>
 
 <g class="lab">
-<text class="cap" x="436" y="86">screenshot</text>
-<text class="num" x="436" y="101">x 0.715</text>
-<text class="cap" x="436" y="225.6">click</text>
-<text class="num" x="436" y="240.6">x 1.399</text>
+<text class="cap" x="416" y="72">screenshot</text>
+<text class="num" x="416" y="87">x 1372/1920</text>
+<text class="cap" x="416" y="265.6">click</text>
+<text class="num" x="416" y="280.6">x 1920/1372</text>
 </g>
 
-<g class="hit h1">
-<line class="ax" x1="670.9" y1="176.6" x2="696.9" y2="176.6"/>
-<line class="ax" x1="683.9" y1="163.6" x2="683.9" y2="189.6"/>
-<circle class="dot" cx="683.9" cy="176.6" r="3.2"/>
+<g class="hit">
+<line class="ax" x1="708.1" y1="178.6" x2="736.1" y2="178.6"/>
+<line class="ax" x1="722.1" y1="164.6" x2="722.1" y2="192.6"/>
+<circle class="dot" cx="722.1" cy="178.6" r="3.2"/>
 </g>
-<g class="hit h2">
-<line class="ax" x1="176" y1="180.5" x2="206" y2="180.5"/>
-<line class="ax" x1="191" y1="165.5" x2="191" y2="195.5"/>
-<circle class="dot" cx="191" cy="180.5" r="3.2"/>
+<g class="hit">
+<line class="ax" x1="191" y1="182.5" x2="219" y2="182.5"/>
+<line class="ax" x1="205" y1="168.5" x2="205" y2="196.5"/>
+<circle class="dot" cx="205" cy="182.5" r="3.2"/>
 </g>
-<circle class="ring" cx="191" cy="180.5" r="6"/>
+<circle class="ring" cx="205" cy="182.5" r="6"/>
 
-<text class="coord" x="701.9" y="168.6">686, 443</text>
-<text class="coord" x="211" y="170.5">960, 620</text>
+<text class="coord" x="740.1" y="169.6">686, 443</text>
+<text class="coord" x="223" y="173.5">960, 620</text>
 
 </svg>
