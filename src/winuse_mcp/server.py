@@ -6,17 +6,20 @@ CLI). All coordinates the model passes in are in the pixel space of the
 downscaled screenshot; this module rescales them to native screen pixels.
 """
 
+import contextlib
 import ctypes
 import io
+import sys
 import time
 
 # Opt out of DPI virtualization before any screen-metric call, otherwise
 # capture size and click coordinates disagree whenever display scaling
 # is not 100%.
-try:
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PER_MONITOR_DPI_AWARE
-except Exception:  # pragma: no cover - pre-Win8.1 fallback
-    ctypes.windll.user32.SetProcessDPIAware()
+if sys.platform == "win32":
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PER_MONITOR_DPI_AWARE
+    except Exception:  # pragma: no cover - pre-Win8.1 fallback
+        ctypes.windll.user32.SetProcessDPIAware()
 
 import mss
 import pyautogui
@@ -24,10 +27,13 @@ import pyperclip
 from mcp.server.mcpserver import Image, MCPServer
 from PIL import Image as PILImage
 
-# Moving the mouse into a screen corner aborts the current action
+# Parking the mouse at the top-left corner aborts the action in flight
 # (pyautogui.FailSafeException): manual kill switch while the model drives.
+# pyautogui only watches (0, 0), so _to_native keeps clicks one pixel clear of
+# it; landing the cursor there would wedge every later input call.
 pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 0.05
+FAILSAFE_POINT = (0, 0)
 
 MAX_LONG_EDGE = 1372
 MAX_RECORD_SECONDS = 15.0
@@ -37,33 +43,52 @@ MAX_WAIT_SECONDS = 10.0
 mcp = MCPServer("winuse")
 
 
-def _primary_monitor() -> dict:
-    with mss.mss() as sct:
-        monitors = sct.monitors[1:]
+@contextlib.contextmanager
+def _cleanup():
+    """Run a release call with the failsafe suppressed.
+
+    pyautogui re-checks the failsafe inside mouseUp and keyUp, so cleanup
+    issued after an abort would raise again and leave the button or key held
+    down. The abort itself still propagates; only the release is exempt.
+    """
+    previous = pyautogui.FAILSAFE
+    pyautogui.FAILSAFE = False
+    try:
+        yield
+    finally:
+        pyautogui.FAILSAFE = previous
+
+
+def _primary_monitor(sct: "mss.base.MSSBase | None" = None) -> dict:
+    if sct is None:
+        with mss.mss() as own:
+            return _primary_monitor(own)
+    monitors = sct.monitors[1:]
     for mon in monitors:
         if mon.get("is_primary") or (mon["left"] == 0 and mon["top"] == 0):
             return mon
     return monitors[0]
 
 
-def _scale() -> float:
-    mon = _primary_monitor()
+def _scale(mon: dict) -> float:
     return min(1.0, MAX_LONG_EDGE / max(mon["width"], mon["height"]))
 
 
 def _to_native(x: float, y: float) -> tuple[int, int]:
     mon = _primary_monitor()
-    scale = min(1.0, MAX_LONG_EDGE / max(mon["width"], mon["height"]))
+    scale = _scale(mon)
     nx = mon["left"] + round(x / scale)
     ny = mon["top"] + round(y / scale)
-    nx = max(mon["left"], min(nx, mon["left"] + mon["width"] - 1))
-    ny = max(mon["top"], min(ny, mon["top"] + mon["height"] - 1))
+    # One pixel in from the edges: the top-left pixel is pyautogui's failsafe
+    # point, and parking the cursor there makes every later call abort.
+    nx = max(mon["left"] + 1, min(nx, mon["left"] + mon["width"] - 1))
+    ny = max(mon["top"] + 1, min(ny, mon["top"] + mon["height"] - 1))
     return nx, ny
 
 
 def _grab_frame() -> PILImage.Image:
     with mss.mss() as sct:
-        mon = _primary_monitor()
+        mon = _primary_monitor(sct)
         shot = sct.grab(mon)
         img = PILImage.frombytes("RGB", shot.size, shot.bgra, "raw", "BGRX")
     scale = min(1.0, MAX_LONG_EDGE / max(img.size))
@@ -79,6 +104,20 @@ def _png(img: PILImage.Image) -> Image:
     buf = io.BytesIO()
     img.save(buf, format="PNG", optimize=True)
     return Image(data=buf.getvalue(), format="png")
+
+
+def _split_combo(combo: str) -> list[str]:
+    """Split a chord on "+", treating a trailing "+" as the plus key itself.
+
+    Without this, "ctrl++" parses to ["ctrl"] and presses Ctrl on its own while
+    reporting success.
+    """
+    text = combo.strip()
+    if text == "+":
+        return ["+"]
+    if text.endswith("+"):
+        return [p.strip().lower() for p in text[:-1].split("+") if p.strip()] + ["+"]
+    return [p.strip().lower() for p in text.split("+") if p.strip()]
 
 
 def _click(x: float, y: float, button: str = "left", clicks: int = 1) -> str:
@@ -141,7 +180,14 @@ def left_click_drag(start_x: int, start_y: int, end_x: int, end_y: int) -> str:
     sx, sy = _to_native(start_x, start_y)
     ex, ey = _to_native(end_x, end_y)
     pyautogui.moveTo(sx, sy)
-    pyautogui.dragTo(ex, ey, duration=0.4, button="left")
+    try:
+        pyautogui.dragTo(ex, ey, duration=0.4, button="left")
+    finally:
+        # dragTo checks the failsafe inside its tween loop and skips its own
+        # trailing mouseUp when that fires, so an abort mid-drag would leave the
+        # button held and the desktop dragging whatever was grabbed.
+        with _cleanup():
+            pyautogui.mouseUp(button="left")
     return f"dragged ({start_x}, {start_y}) -> ({end_x}, {end_y})"
 
 
@@ -161,10 +207,12 @@ def type_text(text: str) -> str:
         except pyperclip.PyperclipException:
             pass
         pyperclip.copy(text)
-        pyautogui.hotkey("ctrl", "v")
-        time.sleep(0.2)
-        if previous is not None:
-            pyperclip.copy(previous)
+        try:
+            pyautogui.hotkey("ctrl", "v")
+            time.sleep(0.2)
+        finally:
+            if previous is not None:
+                pyperclip.copy(previous)
     return f"typed {len(text)} characters"
 
 
@@ -176,7 +224,7 @@ def key(combo: str) -> str:
     up/down/left/right, home, end, pageup, pagedown, f1-f24, win, ctrl,
     alt, shift, printscreen, and single characters.
     """
-    parts = [p.strip().lower() for p in combo.split("+") if p.strip()]
+    parts = _split_combo(combo)
     if not parts:
         raise ValueError("empty key combo")
     invalid = [p for p in parts if p not in pyautogui.KEYBOARD_KEYS]
@@ -210,7 +258,10 @@ def scroll(x: int, y: int, direction: str = "down", amount: int = 3) -> str:
         try:
             pyautogui.scroll(clicks)
         finally:
-            pyautogui.keyUp("shift")
+            # keyUp re-runs the failsafe check, so an abort here would skip the
+            # release and leave shift stuck down for the user.
+            with _cleanup():
+                pyautogui.keyUp("shift")
     return f"scrolled {direction} {amount} at ({x}, {y})"
 
 
@@ -219,7 +270,7 @@ def cursor_position() -> str:
     """Current mouse position in screenshot coordinates."""
     pos = pyautogui.position()
     mon = _primary_monitor()
-    scale = min(1.0, MAX_LONG_EDGE / max(mon["width"], mon["height"]))
+    scale = _scale(mon)
     x = round((pos.x - mon["left"]) * scale)
     y = round((pos.y - mon["top"]) * scale)
     return f"({x}, {y})"
