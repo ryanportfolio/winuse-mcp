@@ -4,3 +4,12 @@
 # Workflow and issue-template YAML stays LF. A Windows checkout that rewrites it
 # to CRLF produces a whole-file diff for everyone with core.autocrlf off.
 *.yml text eol=lf
+
+# The language bar should describe the server, not its packaging. The README
+# generator and the agent-harness config are both larger than src/ and would
+# otherwise report this Python project as mostly JavaScript and shell.
+scripts/readme/** linguist-documentation
+assets/** linguist-documentation
+.claude/** linguist-vendored
+.agents/** linguist-vendored
+.codex/** linguist-vendored
