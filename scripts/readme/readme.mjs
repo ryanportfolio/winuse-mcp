@@ -17,7 +17,7 @@ function pic(base, alt, width = true) {
 
 // The install line pins a tag rather than tracking a branch, so a push cannot
 // change what drives a reader's desktop.
-const PIN = 'v0.1.0';
+const PIN = 'v0.1.1';
 const heroPath = path.join(ROOT, 'assets/img/loop.png');
 const heroExists = fs.existsSync(heroPath);
 
