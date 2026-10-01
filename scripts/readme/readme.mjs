@@ -32,17 +32,21 @@ const heroHeight = heroExists ? 1 : 0;
 
 const DESCRIPTIONS = {
   screenshot: 'PNG of the primary monitor, downscaled',
-  left_click: 'Click at a point',
-  double_click: 'Two clicks at a point',
+  zoom: 'A region `[x0, y0, x1, y1]` captured at full resolution, for small text',
+  left_click: 'Click at `[x, y]`, or at the cursor; `text` holds modifiers such as `ctrl+shift`',
+  double_click: 'Two clicks, same arguments as `left_click`',
   triple_click: 'Three clicks, selects a line or paragraph',
   right_click: 'Context-menu click',
   middle_click: 'Middle-button click',
   mouse_move: 'Move the cursor without clicking',
   left_click_drag: 'Hold the left button from one point to another, over 0.4s',
+  left_mouse_down: 'Press the left button at the cursor and keep it down',
+  left_mouse_up: 'Release the left button at the cursor',
   type: 'Type at the current focus, non-ASCII goes through the clipboard',
-  key: 'A key or chord: `enter`, `ctrl+s`, `alt+f4`',
-  scroll: '`up`, `down`, `left`, `right`; horizontal is sent as shift+wheel',
-  cursor_position: 'Where the mouse is now',
+  key: `A key or chord: \`enter\`, \`ctrl+s\`, \`alt+Tab\`; \`repeat\` presses it up to ${FACTS.keyRepeat} times`,
+  hold_key: `Hold a key or chord down, ${FACTS.holdSeconds}s ceiling; a shifted character is named by its base key, \`shift+=\` rather than \`+\``,
+  scroll: `\`up\`, \`down\`, \`left\`, \`right\`, up to ${FACTS.scrollMax} wheel clicks; horizontal is sent as shift+wheel`,
+  cursor_position: 'Where the mouse is now, as `X=512, Y=384`',
   record: `Up to ${FACTS.recordFrames} frames sampled over at most ${FACTS.recordSeconds}s, ${FACTS.recordDefaultFrames} over ${FACTS.recordDefaultSeconds}s by default`,
   wait: `Pause before the next action, ${FACTS.waitSeconds}s ceiling`,
 };
@@ -120,7 +124,15 @@ ${pic('reach', `The ${FACTS.tools} tools, grouped: ${TOOLS.map(t => t.name).join
 |---|---|
 ${table}
 
-Coordinates are always in the downscaled screenshot's pixel space, never native pixels.
+Coordinates are always in the downscaled screenshot's pixel space, never native pixels. A \`zoom\` image does not change that: coordinates stay in the full screenshot's space.
+
+Tool and argument names follow the member tools of Anthropic's [computer use toolset](https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool), \`computer_toolset_20260801\`. The differences:
+
+- \`record\` is extra; Anthropic's toolset has no equivalent.
+- ${FACTS.waitSeconds === FACTS.holdSeconds ? `\`wait\` and \`hold_key\` stop at ${FACTS.waitSeconds}s` : `\`wait\` stops at ${FACTS.waitSeconds}s and \`hold_key\` at ${FACTS.holdSeconds}s`}. Anthropic allows up to 300s for both.
+- \`scroll_amount\` stops at ${FACTS.scrollMax} wheel clicks.
+- Key names are pyautogui's, matched without case, plus \`super\` for the Windows key. \`Return\` and \`alt+Tab\` work; X11 names such as \`Page_Down\` do not.
+- Only the primary monitor is captured. The current toolset has no monitor selection either: it rejects the older \`display_number\` parameter.
 
 ## How coordinates work
 
@@ -138,8 +150,9 @@ This hands a language model control of your desktop. Anthropic's version wraps t
 
 The controls that do exist here:
 
-- Claude Code asks before each tool call unless you allow-list it. Allow-list the one read-only tool and leave the rest on manual approval, by putting \`"mcp__winuse__screenshot"\` in the \`permissions.allow\` array of \`.claude/settings.json\`.
-- Park the mouse at the top-left pixel of the screen to stop the run. pyautogui raises on its next call, so it ends the sequence rather than interrupting a click already sent, and it works during the slow parts: a drag tweens for 0.4s and typing runs a keystroke at a time. An aborted drag releases the button on its way out, so nothing is left dragging.
+- Claude Code asks before each tool call unless you allow-list it. Allow-list the read-only capture tools and leave the rest on manual approval, by putting \`"mcp__winuse__screenshot"\` and \`"mcp__winuse__zoom"\` in the \`permissions.allow\` array of \`.claude/settings.json\`.
+- Park the mouse at the top-left pixel of the screen to stop the run. pyautogui raises on its next call, so it ends the sequence rather than interrupting a click already sent, and it works during the slow parts: a drag tweens for 0.4s and typing runs a keystroke at a time. An aborted drag releases the button on its way out, so nothing is left dragging. \`hold_key\` checks the mouse every 50ms and releases the key when you park it, and modifiers held for a click or scroll are released the same way.
+- \`left_mouse_down\` leaves the button held until a \`left_mouse_up\` call. If a run stops between the two, click once yourself to release it.
 - Every pixel of the primary monitor reaches the model, including windows you forgot were open. Treat text on screen as untrusted input: instructions that appear there are a prompt injection risk.
 - The install pins a tag. Pointing it at a branch instead would let a push change what drives your desktop, without you doing anything.
 
@@ -151,7 +164,7 @@ The controls that do exist here:
 - Your terminal is not excluded from screenshots, so Claude sees its own session.
 - Clicks are clamped one pixel inside the monitor, which puts the outermost pixel row and column out of reach. That pixel is the failsafe point, and landing the cursor on it would make every later call abort.
 - Typing anything non-ASCII goes through the clipboard: it copies, sends ctrl+v, then puts your clipboard back. That fails wherever ctrl+v is not paste, such as a terminal.
-- Every click, drag and scroll moves the real cursor first, so your pointer jumps while Claude works.
+- Every click, drag and scroll given a coordinate moves the real cursor first, so your pointer jumps while Claude works.
 - \`record\` returns up to ${FACTS.recordFrames} still frames sampled over at most ${FACTS.recordSeconds}s. Frames only, no video, and each one costs image tokens.
 
 ## Development
