@@ -1,6 +1,6 @@
 [project]
 name = "winuse-mcp"
-version = "0.1.0"
+version = "0.2.0"
 description = "Computer use for Claude Code on Windows: screenshot and input control as an MCP server"
 readme = "README.md"
 authors = [
@@ -21,3 +21,11 @@ winuse-mcp = "winuse_mcp:main"
 [build-system]
 requires = ["uv_build>=0.12.0,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+# Only tests/. scripts/ holds *_test.py files that pytest would otherwise
+# collect, and client_test.py drives the real mouse at import time.
+testpaths = ["tests"]

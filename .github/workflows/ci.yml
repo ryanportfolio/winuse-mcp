@@ -32,5 +32,7 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync
+      - name: Unit tests (mss, pyautogui and pyperclip stubbed)
+        run: uv run pytest
       - name: Failsafe cleanup paths
         run: uv run python scripts/failsafe_test.py
