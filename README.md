@@ -3,7 +3,17 @@
 
 An MCP server that lets Claude see your Windows screen and drive your mouse and keyboard.
 
-Claude Code's CLI [ships computer use on macOS only](https://code.claude.com/docs/en/computer-use), so on Windows the `computer-use` server never appears in `/mcp`. This rebuilds that screenshot-and-click loop on [mss](https://github.com/BoboTiG/python-mss) for capture and [pyautogui](https://github.com/asweigart/pyautogui) for input, with an explicit Windows DPI-awareness call so display scaling cannot skew clicks. 18 tools, 5 direct dependencies, Python 3.12 or newer.
+## Use the built-in feature if you can
+
+Anthropic ships computer use for Windows in the Claude Desktop app. Its [Desktop docs](https://code.claude.com/docs/en/desktop#let-claude-use-your-computer) describe it as "a research preview on macOS and Windows that requires a Pro or Max plan", turned on from **Settings > General**. If that is your setup, use it instead of this server: it asks before Claude touches each app, hides other windows while Claude works, and keeps your terminal out of the screenshots. winuse does none of that.
+
+winuse is for the setups the built-in feature does not reach:
+
+- **Claude Code CLI on Windows.** The CLI's `computer-use` server is macOS only. Its [docs](https://code.claude.com/docs/en/computer-use) say "Computer use in the CLI is not available on Linux or Windows", so on Windows it never appears in `/mcp`.
+- **Plans and sign-ins the built-in feature excludes.** Both the CLI and Desktop versions are "not available on Team or Enterprise plans", and the CLI version is unavailable through Amazon Bedrock, Google Cloud's Agent Platform, or Microsoft Foundry.
+- **Other MCP clients**, such as Codex CLI. Anything that can launch a stdio MCP server can run the command under [Install](#install).
+
+It rebuilds the screenshot-and-click loop on [mss](https://github.com/BoboTiG/python-mss) for capture and [pyautogui](https://github.com/asweigart/pyautogui) for input, with an explicit Windows DPI-awareness call so display scaling cannot skew clicks. 18 tools, 5 direct dependencies, Python 3.12 or newer.
 
 ## Install
 
@@ -14,6 +24,8 @@ claude mcp add --scope user winuse -- uvx --from git+https://github.com/ryanport
 ```
 
 Drop `--scope user` to add it to the current project only. To pick up changes later, re-run with a newer tag.
+
+For a client other than Claude Code, register a stdio server whose command is `uvx` with the arguments `--from git+https://github.com/ryanportfolio/winuse-mcp@v0.1.1 winuse-mcp`.
 
 <details>
 <summary>Configuring by hand instead</summary>
