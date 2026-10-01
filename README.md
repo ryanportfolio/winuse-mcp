@@ -113,6 +113,12 @@ uv sync
 uv run winuse-mcp
 ```
 
+`tests/` holds unit tests for the coordinate math and chord parsing. They replace mss, pyautogui and pyperclip with stand-ins, so they never touch the screen, mouse, keyboard or clipboard, and CI runs them on every pull request and every push to main.
+
+```bash
+uv run pytest
+```
+
 `scripts/client_test.py` drives the real server over stdio and exits non-zero on the first failed check. It moves your mouse while it runs.
 
 ```bash
