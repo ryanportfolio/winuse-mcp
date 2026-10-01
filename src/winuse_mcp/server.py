@@ -197,6 +197,16 @@ def _keys(combo: str) -> list[str]:
     return parts
 
 
+def _needs_modifier(key: str) -> bool:
+    """True when pyautogui sends this key with a modifier of its own, e.g. '+' or '!'."""
+    if pyautogui.isShiftCharacter(key):
+        return True
+    # Windows mapping codes above 0xFF carry shift/ctrl/alt flags in the high byte.
+    mapping = getattr(getattr(pyautogui, "platformModule", None), "keyboardMapping", None) or {}
+    code = mapping.get(key)
+    return code is not None and code >= 0x100
+
+
 def _modifiers(text: str | None) -> list[str]:
     """pyautogui keys for a click or scroll's modifier text, e.g. 'ctrl+shift'."""
     if not text:
@@ -389,6 +399,14 @@ def hold_key(text: str, duration: float) -> str:
     Parking the mouse at the top-left pixel releases it early.
     """
     parts = _keys(text)
+    # pyautogui's Windows keyDown presses and releases shift (or ctrl/alt)
+    # around any key that needs one, such as "+", which would drop a modifier
+    # this hold already pressed and leave only the base key down.
+    implicit = [p for p in parts if _needs_modifier(p)]
+    if implicit:
+        raise ValueError(
+            f"hold_key cannot hold {implicit}: name the unshifted key and add the modifier, e.g. 'shift+=' for '+'"
+        )
     seconds = max(0.0, min(float(duration), MAX_HOLD_SECONDS))
     with _holding(parts):
         end = time.monotonic() + seconds

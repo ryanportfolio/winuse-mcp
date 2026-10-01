@@ -44,7 +44,7 @@ const DESCRIPTIONS = {
   left_mouse_up: 'Release the left button at the cursor',
   type: 'Type at the current focus, non-ASCII goes through the clipboard',
   key: `A key or chord: \`enter\`, \`ctrl+s\`, \`alt+Tab\`; \`repeat\` presses it up to ${FACTS.keyRepeat} times`,
-  hold_key: `Hold a key or chord down, ${FACTS.holdSeconds}s ceiling`,
+  hold_key: `Hold a key or chord down, ${FACTS.holdSeconds}s ceiling; a shifted character is named by its base key, \`shift+=\` rather than \`+\``,
   scroll: `\`up\`, \`down\`, \`left\`, \`right\`, up to ${FACTS.scrollMax} wheel clicks; horizontal is sent as shift+wheel`,
   cursor_position: 'Where the mouse is now, as `X=512, Y=384`',
   record: `Up to ${FACTS.recordFrames} frames sampled over at most ${FACTS.recordSeconds}s, ${FACTS.recordDefaultFrames} over ${FACTS.recordDefaultSeconds}s by default`,

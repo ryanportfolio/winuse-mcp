@@ -25,13 +25,18 @@ class _Recorder(types.ModuleType):
         self.PAUSE = 0.0
         self.KEYBOARD_KEYS = [
             "+", "a", "s", "t", "enter", "return", "tab", "esc", "ctrl", "alt",
-            "shift", "win", "f4", "space", "backspace",
+            "shift", "win", "f4", "space", "backspace", "=", "!",
         ]
         self.calls = []
         self.cursor = types.SimpleNamespace(x=0, y=0)
 
     def position(self):
         return self.cursor
+
+    @staticmethod
+    def isShiftCharacter(character):
+        # Same rule as pyautogui's own.
+        return character.isupper() or character in set('~!@#$%^&*()_+{}|:"<>?')
 
     def __getattr__(self, name):
         if name.startswith("__"):

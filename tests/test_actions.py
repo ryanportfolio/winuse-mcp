@@ -285,3 +285,16 @@ def test_mcp_dispatch_uses_anthropic_argument_names(screen, inputs):
     asyncio.run(server.mcp.call_tool("left_click", {"coordinate": [686, 443], "text": "shift"}))
     assert ("click", (), {"x": 960, "y": 620, "clicks": 1, "button": "left"}) in inputs.calls
     assert [c[0] for c in inputs.calls] == ["keyDown", "click", "keyUp"]
+
+
+@pytest.mark.parametrize("text", ["+", "shift++", "ctrl+!"])
+def test_hold_key_refuses_keys_with_implicit_modifiers(inputs, clock, text):
+    # pyautogui would press and release shift around these, dropping a held one.
+    with pytest.raises(ValueError, match="unshifted"):
+        tool("hold_key")(text, 1)
+    assert inputs.calls == []
+
+
+def test_hold_key_accepts_explicit_shift_with_base_key(inputs, clock):
+    tool("hold_key")("shift+=", 0.05)
+    assert [c[1][0] for c in inputs.calls if c[0] == "keyDown"] == ["shift", "="]

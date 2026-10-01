@@ -77,7 +77,7 @@ Then ask Claude to take a screenshot and describe what is on your screen. If the
 | `left_mouse_up()` | Release the left button at the cursor |
 | `type(text)` | Type at the current focus, non-ASCII goes through the clipboard |
 | `key(text, repeat)` | A key or chord: `enter`, `ctrl+s`, `alt+Tab`; `repeat` presses it up to 100 times |
-| `hold_key(text, duration)` | Hold a key or chord down, 10s ceiling |
+| `hold_key(text, duration)` | Hold a key or chord down, 10s ceiling; a shifted character is named by its base key, `shift+=` rather than `+` |
 | `scroll(scroll_direction, scroll_amount, coordinate, text)` | `up`, `down`, `left`, `right`, up to 20 wheel clicks; horizontal is sent as shift+wheel |
 | `cursor_position()` | Where the mouse is now, as `X=512, Y=384` |
 | `record(duration_seconds, max_frames)` | Up to 8 frames sampled over at most 15s, 6 over 5s by default |
