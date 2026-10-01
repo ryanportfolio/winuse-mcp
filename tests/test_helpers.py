@@ -90,7 +90,7 @@ def test_to_native_offsets_by_monitor_origin(screen):
 def test_cursor_position_round_trips(screen, inputs):
     fn = getattr(server.cursor_position, "fn", server.cursor_position)
     inputs.cursor.x, inputs.cursor.y = server._to_native(686, 443)
-    assert fn() == "(686, 443)"
+    assert fn() == "X=686, Y=443"
 
 
 # ------------------------------------------------------------------ _split_combo

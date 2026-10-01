@@ -28,6 +28,7 @@ async def main():
             tools = {t.name for t in (await session.list_tools()).tools}
             expected = {
                 "screenshot",
+                "zoom",
                 "left_click",
                 "double_click",
                 "triple_click",
@@ -35,8 +36,11 @@ async def main():
                 "middle_click",
                 "mouse_move",
                 "left_click_drag",
+                "left_mouse_down",
+                "left_mouse_up",
                 "type",
                 "key",
+                "hold_key",
                 "scroll",
                 "cursor_position",
                 "record",
@@ -51,9 +55,16 @@ async def main():
                 f"type={shot.type}, {len(getattr(shot, 'data', ''))} base64 chars",
             )
 
-            await session.call_tool("mouse_move", {"x": 100, "y": 100})
+            zoomed = (await session.call_tool("zoom", {"region": [0, 0, 200, 100]})).content[0]
+            check(
+                "zoom returns an image block",
+                zoomed.type == "image" and len(getattr(zoomed, "data", "")) > 100,
+                f"type={zoomed.type}, {len(getattr(zoomed, 'data', ''))} base64 chars",
+            )
+
+            await session.call_tool("mouse_move", {"coordinate": [100, 100]})
             pos = (await session.call_tool("cursor_position", {})).content[0].text
-            x, y = (int(v) for v in pos.strip("()").split(","))
+            x, y = (int(v.split("=")[1]) for v in pos.split(","))
             # A pixel of rounding is expected: the round trip crosses the
             # downscale and back.
             check("the cursor lands where it was sent", abs(x - 100) <= 1 and abs(y - 100) <= 1, f"asked 100, 100 and read {pos}")
@@ -65,10 +76,10 @@ async def main():
                 f"{len(frames)} blocks, types {[f.type for f in frames]}",
             )
 
-            bad = await session.call_tool("key", {"combo": "nosuchkey"})
+            bad = await session.call_tool("key", {"text": "nosuchkey"})
             check("an unknown key reports an error", bad.is_error is True, f"is_error={bad.is_error}")
 
-            plus = await session.call_tool("key", {"combo": "ctrl++"})
+            plus = await session.call_tool("key", {"text": "ctrl++"})
             check("a chord ending in plus is accepted", plus.is_error is not True, f"is_error={plus.is_error}")
 
 

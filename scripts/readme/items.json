@@ -4,7 +4,12 @@
       "id": "see",
       "label": "reads",
       "note": "what comes back",
-      "tools": ["screenshot", "record", "cursor_position"]
+      "tools": [
+        "screenshot",
+        "zoom",
+        "record",
+        "cursor_position"
+      ]
     },
     {
       "id": "act",
@@ -18,8 +23,11 @@
         "middle_click",
         "mouse_move",
         "left_click_drag",
+        "left_mouse_down",
+        "left_mouse_up",
         "type",
         "key",
+        "hold_key",
         "scroll"
       ]
     },
@@ -27,7 +35,9 @@
       "id": "pace",
       "label": "waits",
       "note": "pauses between actions",
-      "tools": ["wait"]
+      "tools": [
+        "wait"
+      ]
     }
   ]
 }

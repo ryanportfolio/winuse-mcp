@@ -64,10 +64,8 @@ if not run(
     "drag aborted mid-tween still releases the button",
     "dragTo",
     server.left_click_drag.fn if hasattr(server.left_click_drag, "fn") else server.left_click_drag,
-    10,
-    10,
-    200,
-    200,
+    [10, 10],
+    [200, 200],
     expect="mouseUp",
 ):
     bad += 1
@@ -77,11 +75,30 @@ if not run(
     "horizontal scroll aborted still releases shift",
     "scroll",
     server.scroll.fn if hasattr(server.scroll, "fn") else server.scroll,
-    10,
-    10,
     "right",
     3,
+    [10, 10],
     expect="keyUp",
+):
+    bad += 1
+
+# An abort during hold_key must still release the key it pressed.
+if not run(
+    "hold_key aborted mid-hold still releases the key",
+    "failSafeCheck",
+    server.hold_key.fn if hasattr(server.hold_key, "fn") else server.hold_key,
+    "shift",
+    1,
+    expect="keyUp",
+):
+    bad += 1
+
+# left_mouse_up has to release even with the failsafe tripped.
+if not run(
+    "left_mouse_up releases after an abort",
+    "mouseUp",
+    server.left_mouse_up.fn if hasattr(server.left_mouse_up, "fn") else server.left_mouse_up,
+    expect="mouseUp",
 ):
     bad += 1
 
