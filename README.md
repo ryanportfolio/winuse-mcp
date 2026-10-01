@@ -20,12 +20,12 @@ It rebuilds the screenshot-and-click loop on [mss](https://github.com/BoboTiG/py
 You need Windows with an interactive desktop session, [uv](https://docs.astral.sh/uv/), and git on PATH. One command:
 
 ```bash
-claude mcp add --scope user winuse -- uvx --from git+https://github.com/ryanportfolio/winuse-mcp@v0.1.1 winuse-mcp
+claude mcp add --scope user winuse -- uvx --from git+https://github.com/ryanportfolio/winuse-mcp@v0.2.0 winuse-mcp
 ```
 
 Drop `--scope user` to add it to the current project only. To pick up changes later, re-run with a newer tag.
 
-For a client other than Claude Code, register a stdio server whose command is `uvx` with the arguments `--from git+https://github.com/ryanportfolio/winuse-mcp@v0.1.1 winuse-mcp`.
+For a client other than Claude Code, register a stdio server whose command is `uvx` with the arguments `--from git+https://github.com/ryanportfolio/winuse-mcp@v0.2.0 winuse-mcp`.
 
 <details>
 <summary>Configuring by hand instead</summary>
@@ -37,7 +37,7 @@ Merge the `winuse` entry into the `mcpServers` object you already have. Do not p
   "mcpServers": {
     "winuse": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/ryanportfolio/winuse-mcp@v0.1.1", "winuse-mcp"]
+      "args": ["--from", "git+https://github.com/ryanportfolio/winuse-mcp@v0.2.0", "winuse-mcp"]
     }
   }
 }
@@ -169,7 +169,7 @@ node scripts/readme/build.mjs
 **It appears, then fails to connect.** Run the command by hand and read the error:
 
 ```bash
-uvx --from git+https://github.com/ryanportfolio/winuse-mcp@v0.1.1 winuse-mcp
+uvx --from git+https://github.com/ryanportfolio/winuse-mcp@v0.2.0 winuse-mcp
 ```
 
 It should start and wait quietly for input on stdin. `uvx` missing means uv is not installed or not on PATH. A git error means git is missing, or a proxy is blocking the clone. If it hangs on first run, that is the clone and the environment build; give it a minute before deciding it is broken.
