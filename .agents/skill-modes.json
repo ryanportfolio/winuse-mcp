@@ -40,6 +40,16 @@
     "wow-loop": "native",
     "wrapup": "native",
     "writing": "native",
-    "writing-plans": "native"
+    "writing-plans": "native",
+    "apply-firmware": "native",
+    "cache-loop": "native",
+    "codex-image-gen": "disabled",
+    "coordinate": "disabled",
+    "deep-plan": "native",
+    "design-prototypes": "native",
+    "redesign-concepts": "native",
+    "security-loop": "native",
+    "external-review": "native",
+    "opus-fullreview": "native"
   }
 }
