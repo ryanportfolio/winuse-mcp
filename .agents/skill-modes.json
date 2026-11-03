@@ -14,7 +14,6 @@
     "claude-review": "native",
     "codex-fullreview": "disabled",
     "codex-review": "native",
-    "compact-review": "disabled",
     "dare": "native",
     "enhance-prompt": "native",
     "fable-mode": "native",
@@ -50,6 +49,13 @@
     "redesign-concepts": "native",
     "security-loop": "native",
     "external-review": "native",
-    "opus-fullreview": "native"
+    "opus-fullreview": "native",
+    "conversion-ux": "native",
+    "gauntlet": "disabled",
+    "motion-design": "native",
+    "product-walkthrough": "native",
+    "seo-loop": "native",
+    "ui-quality": "native",
+    "wow-animation": "native"
   }
 }
